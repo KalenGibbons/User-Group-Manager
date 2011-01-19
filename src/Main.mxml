@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:MobileApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 firstView="com.ortusSolutions.userGroupManager.views.MainHome"
+					 addedToStage="addedToStageHandler()">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.config.UserGroupManagerConfig;
+			
+			import org.spicefactory.parsley.flex.FlexContextBuilder;
+			
+			private function addedToStageHandler():void{
+				// config the IOC container
+				FlexContextBuilder.build(UserGroupManagerConfig, this);
+			}// end addedToStageHandler function
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!--<s:TraceTarget />-->
+	</fx:Declarations>
+	
+	<!-- shared action bar -->
+	<s:navigationContent>
+		<s:Button label="Home" click="navigator.popToFirstView()"/>
+	</s:navigationContent>
+	
+</s:MobileApplication>

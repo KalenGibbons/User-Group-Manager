@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		addedToStage="addedToStageHandler()">
+	
+	<fx:Metadata>
+		[Event(name="savePerson", type="com.ortusSolutions.userGroupManager.events.PersonEvent")]
+		[ManagedEvents("savePerson")]
+	</fx:Metadata>
+	
+	<s:states>
+		<s:State name="newUser" />
+		<s:State name="editUser" />
+	</s:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.events.PersonEvent;
+			import com.ortusSolutions.userGroupManager.model.Person;
+			
+			private const NEW_USER_TITLE:String =	"Create a new user";
+			private const EDIT_USER_TITLE:String = 	"Edit ";
+			
+			[Bindable]
+			private var person:Person;
+
+			protected function addedToStageHandler():void{
+				this.dispatchEvent( new Event("configureView", true) );
+			}// end addedToStageHandler function
+			
+			override public function set data(value:Object):void{
+				if(value == null){
+					person = new Person();
+					this.title = NEW_USER_TITLE;
+					this.currentState = "newUser";
+				}else if(value is Person){
+					person = value as Person;
+					this.title = EDIT_USER_TITLE + person.firstName + " " + person.lastName;
+					this.currentState = "editUser";
+				}
+			}//end data setter function
+			
+			private function submitHandler():void{
+				// TODO : Add validation
+				var person:Person = new Person();
+				person.firstName =	iFirstName.text;
+				person.lastName = 	iLastName.text;
+				person.email = 		iEmail.text;
+				person.phone = 		iPhone.text;
+				person.twitter = 	iTwitter.text;
+				person.facebook = 	iFacebook.text;
+				// save the person
+				this.dispatchEvent( new PersonEvent(PersonEvent.SAVE, person) );
+			}// end submitHandler function
+
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<mx:EmailValidator />
+	</fx:Declarations>
+	
+	<s:VGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+		
+		<!-- member since -->
+		<s:HGroup includeIn="editUser">
+			<s:Label text="Member Since: {person.memberSince}" />
+		</s:HGroup>
+		
+		<s:HGroup>
+			<!-- first name -->
+			<s:VGroup>
+				<s:Label text="First Name:" />
+				<s:TextInput id="iFirstName" />
+			</s:VGroup>
+			<!-- last name -->
+			<s:VGroup>
+				<s:Label text="Last Name:" />
+				<s:TextInput id="iLastName" />
+			</s:VGroup>
+		</s:HGroup>
+		
+		
+		<s:HGroup>
+			<!-- email -->
+			<s:VGroup>
+				<s:Label text="Email:" />
+				<s:TextInput id="iEmail" />
+			</s:VGroup>
+			<!-- phone -->
+			<s:VGroup>
+				<s:Label text="Phone:" />
+				<s:TextInput id="iPhone" />
+			</s:VGroup>
+		</s:HGroup>
+		
+		<s:HGroup>
+			<!-- twitter -->
+			<s:VGroup>
+				<s:Label text="Twitter:" />
+				<s:TextInput id="iTwitter" />
+			</s:VGroup>
+			<!-- facebook -->
+			<s:VGroup>
+				<s:Label text="Facebook:" />
+				<s:TextInput id="iFacebook" />
+			</s:VGroup>
+		</s:HGroup>
+		
+		<!-- Submit or cancel -->
+		<s:HGroup>
+			<s:Button label="Cancel" click="navigator.popView()" />
+			<s:Button label="Submit" click="submitHandler()" />
+		</s:HGroup>
+	</s:VGroup>
+	
+</s:View>
