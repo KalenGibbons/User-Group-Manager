@@ -61,6 +61,7 @@
 		<mx:EmailValidator />
 	</fx:Declarations>
 	
+	<!-- TODO : limit text input sizes to DB fields lengths -->
 	<s:VGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
 		
 		<!-- member since -->

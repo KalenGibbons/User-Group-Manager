@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		addedToStage="addedToStageHandler()" xmlns:mx="library://ns.adobe.com/flex/mx">
+	
+	<fx:Metadata>
+		[Event(name="saveMeeting", type="com.ortusSolutions.userGroupManager.events.MeetingEvent")]
+		[ManagedEvents("saveMeeting")]
+	</fx:Metadata>
+	
+	<s:states>
+		<s:State name="newMeeting" />
+		<s:State name="editMeeting" />
+	</s:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.events.MeetingEvent;
+			import com.ortusSolutions.userGroupManager.model.Meeting;
+			
+			import mx.collections.ArrayCollection;
+			
+			private const NEW_MEETING_TITLE:String =	"Create a new meeting";
+			private const EDIT_MEETING_TITLE:String = 	"Edit ";
+			
+			[Bindable]
+			private var meeting:Meeting;
+			
+			[Embed("assets/edit.png")]
+			private var editIcon:Class;
+			private var labelWidth:int = 180;
+			private var inputWidth:int = 460;
+			private var buttonHeight:int = 48;
+
+			protected function addedToStageHandler():void{
+				this.dispatchEvent( new Event("configureView", true) );
+			}// end addedToStageHandler function
+			
+			override public function set data(value:Object):void{
+				if(value == null){
+					trace('CREATING NEW MEETING');
+					meeting = new Meeting();
+					meeting.presentors = new ArrayCollection();
+					meeting.raffles = new ArrayCollection();
+					meeting.attendees = new ArrayCollection();
+					this.title = NEW_MEETING_TITLE;
+					this.currentState = "newMeeting";
+				}else if(value is Meeting){
+					trace('LOADING EXISTING MEETING');
+					meeting = value as Meeting;
+					this.title = EDIT_MEETING_TITLE + " " + meeting.formattedDate + " " + "meeting";
+					this.currentState = "editMeeting";
+				}
+				super.data = meeting;
+			}//end data setter function
+			
+			private function submitHandler():void{
+				// TODO : Add validation
+				meeting.date = new Date(iYear.text, iMonth.text, iDay.text);
+				meeting.topic = iTopic.text;
+				// save the meeting
+				this.dispatchEvent( new MeetingEvent(MeetingEvent.SAVE, meeting) );
+			}// end submitHandler function
+
+		]]>
+	</fx:Script>
+	
+	<!-- TODO : limit text input sizes to DB fields lengths -->
+	<s:VGroup gap="25"
+			  top="0" bottom="0" left="0" right="0"
+			  horizontalAlign="center" verticalAlign="middle">
+		
+		<s:VGroup gap="15">
+			
+			<!-- meeting date -->			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Meeting Date:" width="{labelWidth}" />
+				<!-- TODO : See if we can find a better input mechanism -->
+				<s:HGroup gap="15" width="{inputWidth}" verticalAlign="bottom">
+					<!-- TODO : Make day and month show in 2 chars -->
+					<s:TextInput id="iMonth" text="{meeting.date.month+1}" textAlign="center" width="100" />
+					<s:Label text="/" fontSize="50" verticalAlign="middle" />
+					<s:TextInput id="iDay" text="{meeting.date.date}" textAlign="center" width="100" />
+					<s:Label text="/" fontSize="50" verticalAlign="middle" />
+					<s:TextInput id="iYear" text="{meeting.date.fullYear}" textAlign="center" width="150" />
+				</s:HGroup>
+			</s:HGroup>
+			
+			<!-- Topic -->
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Topic:" width="{labelWidth}" />
+				<s:TextArea id="iTopic" />
+			</s:HGroup>
+			
+			<!-- presentors -->			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Presentors:" width="{labelWidth}" />
+				<s:Button label="Add Presentor" width="{inputWidth-22}" height="{buttonHeight}"
+						  click="trace('click');"
+						  visible="{meeting.presentors.length == 0}" includeInLayout="{meeting.presentors.length == 0}" />				
+				<s:TextInput id="iPresentor"
+							 visible="{meeting.presentors.length > 0}" includeInLayout="{meeting.presentors.length > 0}"/>
+				<!--<mx:Spacer width="15" />-->
+				<s:Button icon="{editIcon}" label="Edit" height="{buttonHeight}"
+						  visible="{meeting.presentors.length > 0}" includeInLayout="{meeting.presentors.length > 0}" />
+			</s:HGroup>
+			
+			<!-- attendees -->			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Attendees:" width="{labelWidth}" />
+				<s:Button label="Add Attendees - {meeting.attendees.length}" width="{inputWidth-22}" height="{buttonHeight}"
+						  click="navigator.pushView(Attendees, meeting)"
+						  visible="{meeting.attendees.length == 0}" includeInLayout="{meeting.attendees.length == 0}" />
+				<s:Label text="{meeting.attendees.length} member in attendance" width="{inputWidth}"
+						 visible="{meeting.attendees.length > 0}" includeInLayout="{meeting.attendees.length > 0}" />
+				<s:Button icon="{editIcon}" label="Edit" height="{buttonHeight}"
+						  click="trace('click');"
+						  visible="{meeting.attendees.length > 0}" includeInLayout="{meeting.attendees.length > 0}" />
+			</s:HGroup>
+			
+			<!-- raffles -->			
+			<s:HGroup verticalAlign="middle">
+				<s:Label text="Raffles:" width="{labelWidth}" />
+				<s:Button label="Add Raffles" width="{inputWidth-22}" height="{buttonHeight}"
+						  click="trace('click');"
+						  visible="{meeting.raffles.length == 0}" includeInLayout="{meeting.raffles.length == 0}" />
+				<s:Label text="{meeting.raffles.length} raffle winners" width="{inputWidth}"
+						 visible="{meeting.raffles.length > 0}" includeInLayout="{meeting.raffles.length > 0}" />
+				<s:Button icon="{editIcon}" label="Add" height="{buttonHeight}"
+						  click="navigator.pushView(RaffleForm)"
+						  visible="{meeting.raffles.length > 0}" includeInLayout="{meeting.raffles.length > 0}"/>
+			</s:HGroup>
+		</s:VGroup>
+
+		<!-- Submit or cancel -->
+		<s:HGroup gap="40">
+			<s:Button label="Cancel" click="navigator.popView()" />
+			<s:Button label="Submit" click="submitHandler()" />
+		</s:HGroup>
+		
+	</s:VGroup>
+	
+</s:View>

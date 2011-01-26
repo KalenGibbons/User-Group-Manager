@@ -5,15 +5,23 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import com.ortusSolutions.userGroupManager.model.Person;
+			import com.ortusSolutions.userGroupManager.model.Meeting;
 			
 			import spark.events.IndexChangeEvent;
 			
+			private var meeting:Meeting;
+			
+			override public function set data(value:Object):void{
+				this.meeting = value as Meeting;
+			}//end data setter function
+			
 			private function userSelectionHandler(event:IndexChangeEvent):void{
-				var selectedPerson:Person = event.target.selectedItem;
-				navigator.pushView(PersonDetails, selectedPerson);
+				meeting.attendees.addItem(event.target.selectedItem);
+				trace(meeting.attendees.length + ' members');
+				/*var selectedPerson:Person = event.target.selectedItem;
+				navigator.pushView(PersonDetails, selectedPerson);*/
 			}// end userSelectionHandler function
-
+			
 		]]>
 	</fx:Script>
 	
@@ -23,11 +31,11 @@
 			change="userSelectionHandler(event)">
 		<s:itemRenderer>
 			<fx:Component>
-				<s:MobileIconItemRenderer
-					label="{data.firstName} {data.lastName}"
-					messageField="email" />
+				<s:MobileIconItemRenderer label="{data.firstName} {data.lastName}" messageField="email" />
 			</fx:Component>
 		</s:itemRenderer>
 	</s:List>
-
+	
+	<!-- TODO : Move this -->
+	<s:Button label="done" width="100%" click="navigator.popView()" />	
 </base:BasePersonList>

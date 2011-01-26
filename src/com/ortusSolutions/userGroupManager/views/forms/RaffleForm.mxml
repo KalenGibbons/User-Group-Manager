@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		title="PrizeForm">
+	
+	<s:states>
+		<s:State name="preRaffle" />
+		<s:State name="postRaffle" />
+	</s:states>
+	
+	<s:VGroup>
+		<s:HGroup>
+			<s:Label text="Prize:" />
+			<s:TextInput id="iPrize" />
+		</s:HGroup>
+		<s:RadioButton id="iWeight" />
+		
+		<s:VGroup includeIn="preRaffle" width="100%" height="100%">
+			<s:Button label="Raffle Prize" click="this.currentState='postRaffle'" />
+		</s:VGroup>
+		
+		<s:VGroup includeIn="postRaffle" width="100%" height="100%">
+			<s:VGroup width="100%" height="100%">
+				<s:Label text="WINNER IS" />
+			</s:VGroup>
+			<s:HGroup>
+				<s:Button label="Raffle Prize" />
+				<s:Button label="Raffle Again" />
+			</s:HGroup>
+		</s:VGroup>
+	</s:VGroup>
+	
+	
+	
+	
+</s:View>

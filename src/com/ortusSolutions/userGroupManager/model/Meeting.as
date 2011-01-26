@@ -2,32 +2,34 @@ package com.ortusSolutions.userGroupManager.model{
 	
 	import com.ortusSolutions.userGroupManager.config.Settings;
 	
+	import mx.collections.ArrayCollection;
 	import mx.formatters.DateFormatter;
 	
-	public class Person extends BaseVO{
+	[Bindable]
+	public class Meeting extends BaseVO{
 		
 		// database fields
 		public var id:int;
-		public var firstName:String = "";
-		public var lastName:String = "";
-		public var email:String = "";
-		public var phone:String = "";
-		public var twitter:String = "";
-		public var facebook:String = "";
-		public var createdDate:Date;
+		public var topic:String;
+		public var date:Date;
+		
+		public var presentors:ArrayCollection;
+		public var attendees:ArrayCollection;
+		public var raffles:ArrayCollection;
 		
 		// custom properties
 		private var dateFormatter:DateFormatter;
 		
-		public function Person(){
+		public function Meeting(){
 			super();
+			date = new Date();
 			dateFormatter = new DateFormatter();
 			dateFormatter.formatString = Settings.DATE_FORMAT;
 		}// end constructor
 		
-		public function get memberSince():String{
-			return dateFormatter.format(this.createdDate);
-		}// end memberSince function
+		public function get formattedDate():String{
+			return dateFormatter.format(this.date);
+		}// end formattedDate getter
 		
 	}// end Person class
 	

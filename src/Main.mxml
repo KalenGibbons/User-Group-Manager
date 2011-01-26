@@ -6,19 +6,19 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import com.ortusSolutions.userGroupManager.config.UserGroupManagerConfig;
+			import com.ortusSolutions.userGroupManager.config.CoreConfig;
 			
 			import org.spicefactory.parsley.flex.FlexContextBuilder;
 			
 			private function addedToStageHandler():void{
 				// config the IOC container
-				FlexContextBuilder.build(UserGroupManagerConfig, this);
+				FlexContextBuilder.build(CoreConfig, this);
 			}// end addedToStageHandler function
 		]]>
 	</fx:Script>
 	
 	<fx:Declarations>
-		<!--<s:TraceTarget />-->
+		<s:TraceTarget />
 	</fx:Declarations>
 	
 	<!-- shared action bar -->

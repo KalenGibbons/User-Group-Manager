@@ -22,6 +22,7 @@ package com.ortusSolutions.userGroupManager.config{
 		
 		// data
 		public var people:ArrayCollection = new ArrayCollection();
+		public var meetings:ArrayCollection = new ArrayCollection();
 		
 		// commands
 		public var savePersonCommand:SavePersonCommand = new SavePersonCommand();

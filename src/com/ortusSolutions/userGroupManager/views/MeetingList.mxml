@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		title="Group Meetings"
+		addedToStage="addedToStageHandler()">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.model.Meeting;
+			import com.ortusSolutions.userGroupManager.views.forms.MeetingForm;
+			
+			import mx.collections.ArrayCollection;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Inject(id="meetings")]
+			[Bindable]
+			public var meetings:ArrayCollection;
+			
+			protected function addedToStageHandler():void{
+				this.dispatchEvent( new Event("configureView", true) );
+			}// end addedToStageHandler function
+			
+			private function meetingSelectionHandler(event:IndexChangeEvent):void{
+				var selectedMeeting:Meeting = event.target.selectedItem;
+				//navigator.pushView(meetingDetails, selectedMeeting);
+			}// end meetingSelectionHandler function
+			
+		]]>
+	</fx:Script>
+	
+	<!-- add member -->
+	<s:actionContent>
+		<s:Button label="Add New" click="navigator.pushView(MeetingForm)" />
+	</s:actionContent>
+	
+	<!-- member list -->
+	<s:List dataProvider="{meetings}"
+			width="100%" height="100%"
+			change="meetingSelectionHandler(event)">
+		<s:itemRenderer>
+			<fx:Component>
+				<s:MobileIconItemRenderer
+					label="{data.formattedDate}"
+					messageField="topic" />
+			</fx:Component>
+		</s:itemRenderer>
+	</s:List>
+	
+</s:View>
