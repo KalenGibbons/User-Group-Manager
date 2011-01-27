@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<forms:Attendees xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark"
+				 xmlns:forms="com.ortusSolutions.userGroupManager.views.forms.*">
+	
+	<fx:Declarations>
+		<s:Button id="quickAddBtn" label="Quick Add" click="navigator.pushView(PersonForm)" />
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.model.Person;
+			import com.ortusSolutions.userGroupManager.vo.Attendee;
+			
+			import mx.collections.ArrayCollection;
+			
+			[Init]
+			override public function iocInitializedHandler():void{
+				if(people && meeting){
+					attendees = new ArrayCollection();
+					for each(var person:Person in people.source){
+						var index:int = meeting.presentors.source.indexOf(person);
+						var inAttendance:Boolean = (index > -1);
+						attendees.addItem( new Attendee(person, inAttendance) );
+					}
+					attendees.refresh();
+				}
+				if(attendees && attendees.filterFunction == null){
+					attendees.filterFunction = attendeeFilter;
+				}
+				//super.iocInitializedHandler();
+			}// end iocInitializedHandler function
+			
+			override protected function completionHandler():void{
+				// save the updated data
+				meeting.presentors.source = [];
+				for each(var attendee:Attendee in attendees.source){
+					if(attendee.isAttending){
+						meeting.presentors.addItem(attendee.person);
+					}
+				}
+				navigator.popView();
+			}// end completionHandler function
+			
+			override public function get actionContent():Array{
+				return [quickAddBtn, addMemberBtn];
+			}// end actionContent getter override
+		]]>
+	</fx:Script>
+</forms:Attendees>

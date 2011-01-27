@@ -27,7 +27,11 @@ package com.ortusSolutions.userGroupManager.model{
 		
 		public function get memberSince():String{
 			return dateFormatter.format(this.createdDate);
-		}// end memberSince function
+		}// end memberSince getter
+		
+		public function get fullName():String{
+			return this.firstName + ' ' + this.lastName;
+		}// end fullName getter
 		
 	}// end Person class
 	

@@ -7,6 +7,7 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.ortusSolutions.userGroupManager.model.Person;
 			import com.ortusSolutions.userGroupManager.views.forms.PersonForm;
 			
 			import mx.collections.ArrayCollection;
@@ -18,7 +19,7 @@
 			[Bindable]
 			public var people:ArrayCollection;
 			
-			private const DEFAULT_SEARCH_TEXT:String = "Search";
+			protected const DEFAULT_SEARCH_TEXT:String = "Search";
 			
 			/* ***************************************************************************************
 			**									PUBLIC FUNCTIONS
@@ -42,10 +43,10 @@
 			protected function peopleFilter(item:Object):Boolean{
 				var matched:Boolean = false;
 				var searchTerm:String = iSearch.text.toLowerCase();
-				var fullName:String = item.firstName + " " + item.lastName;
+				var person:Person = item as Person;
 				if(searchTerm == DEFAULT_SEARCH_TEXT.toLowerCase()
-					|| fullName.toLowerCase().indexOf(searchTerm) >= 0
-					|| item.email.toLowerCase().indexOf(searchTerm) >= 0){
+					|| person.fullName.toLowerCase().indexOf(searchTerm) >= 0
+					|| person.email.toLowerCase().indexOf(searchTerm) >= 0){
 					matched = true;
 				}
 				return matched;
@@ -54,6 +55,7 @@
 			protected function removedFromStageHandler():void{
 				// remove attachments
 				people.filterFunction = null;
+				people.refresh();
 			}// end removedFromStageHandler function
 			
 			private function searchFocusInHandler(event:FocusEvent):void{
