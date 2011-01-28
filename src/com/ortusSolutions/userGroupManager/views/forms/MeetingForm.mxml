@@ -31,6 +31,8 @@
 			private var labelWidth:int = 180;
 			private var inputWidth:int = 460;
 			private var buttonHeight:int = 48;
+			
+			// TODO : need ability to roll back changes if user cancels
 
 			protected function addedToStageHandler():void{
 				this.dispatchEvent( new Event("configureView", true) );
@@ -42,31 +44,48 @@
 					meeting.presentors = new ArrayCollection();
 					meeting.raffles = new ArrayCollection();
 					meeting.attendees = new ArrayCollection();
-					this.title = NEW_MEETING_TITLE;
-					this.currentState = "newMeeting";
 				}else if(value is Meeting){
 					meeting = value as Meeting;
+				}
+				// determine if this is a new meeting or an existing meeting
+				if(meeting.id && meeting.id != 0){
 					this.title = EDIT_MEETING_TITLE + " " + meeting.formattedDate + " " + "meeting";
 					this.currentState = "editMeeting";
+				}else{
+					this.title = NEW_MEETING_TITLE;
+					this.currentState = "newMeeting";
 				}
+				
 				super.data = meeting;
 			}//end data setter function
 			
+			private function loadAdditionalForm(factory:Class):void{
+				// save updates before loading next form
+				saveMeeting();
+				navigator.pushView(factory, meeting);
+			}// end loadAdditionalForm function
+			
 			private function submitHandler():void{
 				// TODO : Add validation
-				meeting.date = new Date(iYear.text, iMonth.text, iDay.text);
-				meeting.topic = iTopic.text;
+				saveMeeting();
 				// save the meeting
 				this.dispatchEvent( new MeetingEvent(MeetingEvent.SAVE, meeting) );
 			}// end submitHandler function
 			
+			private function saveMeeting():void{
+				// TODO : Validate before saving
+				var year:int = int(iYear.text);
+				var month:int = int(iMonth.text);
+				var day:int = int(iDay.text);
+				meeting.date = new Date(year, month-1, day);
+				meeting.topic = iTopic.text;
+			}// end saveMeeting function
+			
 			private function fixNumber(value:int):String{
-				trace('fixing number ' + value);
 				var fixedNumber:String =  value.toString();
 				if(value >= 0 && value < 10){
 					fixedNumber = '0' + fixedNumber;
 				}
-				trace('fixed number ' + fixedNumber);
 				return fixedNumber;
 			}// end fixNumber function
 
@@ -86,45 +105,51 @@
 				<!-- TODO : See if we can find a better input mechanism -->
 				<s:HGroup gap="15" width="{inputWidth}" verticalAlign="bottom">
 					<!-- TODO : When field gets focus, highlight the value for easy replacement -->
-					<s:TextInput id="iMonth" text="{fixNumber(meeting.date.month+1)}" textAlign="center" width="100" />
+					<s:TextInput id="iMonth" text="{fixNumber(meeting.date.month+1)}"
+								 textAlign="center" width="100"
+								 maxChars="2" restrict="0-9" />
 					<s:Label text="/" fontSize="50" verticalAlign="middle" />
-					<s:TextInput id="iDay" text="{fixNumber(meeting.date.date)}" textAlign="center" width="100" />
+					<s:TextInput id="iDay" text="{fixNumber(meeting.date.date)}"
+								 textAlign="center" width="100"
+								 maxChars="2" restrict="0-9" />
 					<s:Label text="/" fontSize="50" verticalAlign="middle" />
-					<s:TextInput id="iYear" text="{meeting.date.fullYear}" textAlign="center" width="150" />
+					<s:TextInput id="iYear" text="{meeting.date.fullYear}"
+								 textAlign="center" width="150"
+								 maxChars="4" restrict="0-9" />
 				</s:HGroup>
 			</s:HGroup>
 			
 			<!-- Topic -->
 			<s:HGroup verticalAlign="middle">
 				<s:Label text="Topic:" width="{labelWidth}" />
-				<s:TextArea id="iTopic" />
+				<s:TextArea id="iTopic" text="{meeting.topic}" />
 			</s:HGroup>
 			
 			<!-- presentors -->			
 			<s:HGroup verticalAlign="middle">
 				<s:Label text="Presentors:" width="{labelWidth}" />
 				<s:Button label="Add Presentor" width="{inputWidth-22}" height="{buttonHeight}"
-						  click="navigator.pushView(Presentors, meeting)"
+						  click="loadAdditionalForm(Presentors)"
 						  visible="{meeting.presentors.length == 0}" includeInLayout="{meeting.presentors.length == 0}" />				
 				<s:Label text="{meeting.presentors.length } {(meeting.presentors.length>1) ? 'presentors' : 'presentor'}"
 						 width="{inputWidth}"
 						 visible="{meeting.presentors.length > 0}" includeInLayout="{meeting.presentors.length > 0}" />
 				<s:Button icon="{editIcon}" label="Edit" height="{buttonHeight}"
 						  visible="{meeting.presentors.length > 0}" includeInLayout="{meeting.presentors.length > 0}"
-						  click="navigator.pushView(Presentors, meeting)" />
+						  click="loadAdditionalForm(Presentors)" />
 			</s:HGroup>
 			
 			<!-- attendees -->			
 			<s:HGroup verticalAlign="middle">
 				<s:Label text="Attendees:" width="{labelWidth}" />
 				<s:Button label="Add Attendees" width="{inputWidth-22}" height="{buttonHeight}"
-						  click="navigator.pushView(Attendees, meeting)"
+						  click="loadAdditionalForm(Attendees)"
 						  visible="{meeting.attendees.length == 0}" includeInLayout="{meeting.attendees.length == 0}" />
 				<s:Label text="{meeting.attendees.length } {(meeting.attendees.length>1) ? 'members' : 'member'} in attendance"
 						 width="{inputWidth}"
 						 visible="{meeting.attendees.length > 0}" includeInLayout="{meeting.attendees.length > 0}" />
 				<s:Button icon="{editIcon}" label="Edit" height="{buttonHeight}"
-						  click="navigator.pushView(Attendees, meeting);"
+						  click="loadAdditionalForm(Attendees)"
 						  visible="{meeting.attendees.length > 0}" includeInLayout="{meeting.attendees.length > 0}" />
 			</s:HGroup>
 			

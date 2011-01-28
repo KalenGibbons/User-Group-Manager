@@ -3,6 +3,7 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 	import com.ortusSolutions.userGroupManager.model.Person;
 	
 	import flash.data.SQLConnection;
+	import flash.data.SQLResult;
 	import flash.data.SQLStatement;
 	
 	public class PersonDAO implements IDataAccess{
@@ -43,7 +44,7 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 			return sqlStatement.getResult().data;
 		}// end getPersonByID function
 		
-		public function savePerson(person:Person):void{
+		public function savePerson(person:Person):Number{
 			var sql:String =	"INSERT INTO people (firstName, lastName, email, phone, twitter, facebook, createdDate)" +
 								"VALUES(@FIRST_NAME, @LAST_NAME, @EMAIL, @PHONE, @TWITTER, @FACEBOOK, @createdDate)";
 			var sqlStatement:SQLStatement = new SQLStatement();
@@ -57,6 +58,10 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 			sqlStatement.parameters["@FACEBOOK"] =		person.facebook;
 			sqlStatement.parameters["@createdDate"] = 	new Date();
 			sqlStatement.execute();
+			
+			// get and return the id of the newly inserted row
+			var sqlResult:SQLResult = sqlStatement.getResult();
+			return sqlResult.lastInsertRowID;
 		}// end savePerson function
 		
 		/* ***************************************************************************************

@@ -41,7 +41,7 @@
 		<s:itemRenderer>
 			<fx:Component>
 				<s:MobileIconItemRenderer
-					label="{data.formattedDate}"
+					labelField="formattedDate"
 					messageField="topic" />
 			</fx:Component>
 		</s:itemRenderer>

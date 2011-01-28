@@ -4,6 +4,7 @@ package com.ortusSolutions.userGroupManager.model.services{
 	import com.ortusSolutions.userGroupManager.events.ModelEvent;
 	import com.ortusSolutions.userGroupManager.events.RequestCompleteEvent;
 	import com.ortusSolutions.userGroupManager.model.Meeting;
+	import com.ortusSolutions.userGroupManager.model.Person;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.MeetingDAO;
 	import com.ortusSolutions.userGroupManager.vo.ResponseType;
 	
@@ -54,11 +55,32 @@ package com.ortusSolutions.userGroupManager.model.services{
 		
 		
 		public function saveMeeting(meeting:Meeting):void{
-			// TODO : Add transactioning
-			
+			// begin transaction
+			meetingDAO.sqlConnection.begin();
 			try{
-				meetingDAO.saveMeeting(meeting);
+				// save meeting
+				var meetingID:Number = meetingDAO.saveMeeting(meeting);
+				/* save relationships */
+				// remove existing attendees
+				meetingDAO.removeAllAttendees(meetingID);
+				// add new attendees
+				for each(var attendee:Person in meeting.attendees){
+					meetingDAO.addAttendee(meetingID, attendee.id);
+				}
+				// remove existing presentors
+				meetingDAO.removeAllPresentors(meetingID);
+				// add new presentors
+				for each(var presentor:Person in meeting.presentors){
+					meetingDAO.addPresentor(meetingID, presentor.id);
+				}
+				// TODO : Add raffles too
+				
+				// commit transaction
+				meetingDAO.sqlConnection.commit();
 			}catch(error:Error){
+				// rollback changes
+				meetingDAO.sqlConnection.rollback();
+				// dispatch error message
 				messageDispatcher( new RequestCompleteEvent(MeetingEvent.SAVE, ResponseType.ERROR_OCCURRED, error) );
 				return;
 			}

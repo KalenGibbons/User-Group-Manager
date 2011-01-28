@@ -4,6 +4,7 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 	import com.ortusSolutions.userGroupManager.model.Person;
 	
 	import flash.data.SQLConnection;
+	import flash.data.SQLResult;
 	import flash.data.SQLStatement;
 	
 	public class MeetingDAO implements IDataAccess{
@@ -20,33 +21,74 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 		*************************************************************************************** */
 		
 		public function getAll():Array{
-			/*var sql:String = 	"SELECT id, firstName, lastName, email, phone, twitter, facebook, createdDate " +
-								"FROM Meeting";
+			var sql:String = 	"SELECT id, topic, date " +
+								"FROM meetings";
+			// TODO : Load relationships too
 			var sqlStatement:SQLStatement = new SQLStatement();
 			sqlStatement.sqlConnection = this.sqlConnection;
 			sqlStatement.text = sql;
 			sqlStatement.execute();
-			return sqlStatement.getResult().data;*/
-			return []; // temp
+			return sqlStatement.getResult().data;
 		}// end getAll function
 		
-		public function saveMeeting(meeting:Meeting):void{
-			/*var sql:String = 
-				"INSERT INTO people (firstName, lastName, email, phone, twitter, facebook, createdDate)" +
-				"VALUES(@FIRST_NAME, @LAST_NAME, @EMAIL, @PHONE, @TWITTER, @FACEBOOK, @createdDate)";
+		public function saveMeeting(meeting:Meeting):Number{
+			var sql:String =	"INSERT INTO meetings (topic, date) " +
+								"VALUES(@TOPIC, @DATE)";
 			var sqlStatement:SQLStatement = new SQLStatement();
-			sqlStatement.sqlConnection = this..sqlConnection;
+			sqlStatement.sqlConnection = this.sqlConnection;
 			sqlStatement.text = sql;
-			sqlStatement.parameters["@FIRST_NAME"] = 	person.firstName;
-			sqlStatement.parameters["@LAST_NAME"] = 	person.lastName;
-			sqlStatement.parameters["@EMAIL"] = 		person.email;
-			sqlStatement.parameters["@PHONE"] =			person.phone;
-			sqlStatement.parameters["@TWITTER"] = 		person.twitter;
-			sqlStatement.parameters["@FACEBOOK"] =		person.facebook;
-			sqlStatement.parameters["@createdDate"] = 	new Date();
+			sqlStatement.parameters["@TOPIC"] =	meeting.topic;
+			sqlStatement.parameters["@DATE"] = 	meeting.date;
 			sqlStatement.execute();
-			person.isLoaded = true;*/
+			
+			// get and return the id of the newly inserted row
+			var sqlResult:SQLResult = sqlStatement.getResult();
+			return sqlResult.lastInsertRowID;
 		}// end savePerson function
+		
+		public function removeAllAttendees(meetingID:Number):void{
+			var sql:String = 	"DELETE " +
+								"FROM meetingAttendees " +
+								"WHERE meeting = @meetingID";
+			var sqlStatement:SQLStatement = new SQLStatement();
+			sqlStatement.sqlConnection = this.sqlConnection;
+			sqlStatement.text = sql;
+			sqlStatement.parameters["@meetingID"] = meetingID;
+			sqlStatement.execute();
+		}// end removeAllAttendees function
+		
+		public function addAttendee(meetingID:Number, attendeeID:Number):void{
+			var sql:String =	"INSERT INTO meetingAttendees (meeting, person)" +
+								"VALUES(@MEETING, @ATTENDEE)";
+			var sqlStatement:SQLStatement = new SQLStatement();
+			sqlStatement.sqlConnection = this.sqlConnection;
+			sqlStatement.text = sql;
+			sqlStatement.parameters["@MEETING"] = meetingID;
+			sqlStatement.parameters["@ATTENDEE"] = attendeeID;
+			sqlStatement.execute();
+		}// end addAttendee function
+		
+		public function removeAllPresentors(meetingID:Number):void{
+			var sql:String = 	"DELETE " +
+								"FROM meetingPresentors " +
+								"WHERE meeting = @meetingID";
+			var sqlStatement:SQLStatement = new SQLStatement();
+			sqlStatement.sqlConnection = this.sqlConnection;
+			sqlStatement.text = sql;
+			sqlStatement.parameters["@meetingID"] = meetingID;
+			sqlStatement.execute();
+		}// end removeAllPresentors function
+		
+		public function addPresentor(meetingID:Number, presentorID:Number):void{
+			var sql:String =	"INSERT INTO meetingPresentors (meeting, presentor)" +
+								"VALUES(@MEETING, @PRESENTOR)";
+			var sqlStatement:SQLStatement = new SQLStatement();
+			sqlStatement.sqlConnection = this.sqlConnection;
+			sqlStatement.text = sql;
+			sqlStatement.parameters["@MEETING"] = meetingID;
+			sqlStatement.parameters["@PRESENTOR"] = presentorID;
+			sqlStatement.execute();
+		}// end addPresentor function
 		
 		public function createTables():void{
 			createMeetingsTable();

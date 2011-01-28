@@ -24,7 +24,7 @@ package com.ortusSolutions.userGroupManager.model{
 			super();
 			date = new Date();
 			dateFormatter = new DateFormatter();
-			dateFormatter.formatString = Settings.DATE_FORMAT;
+			dateFormatter.formatString = Settings.DATE_FORMAT_LONG;
 		}// end constructor
 		
 		public function get formattedDate():String{
