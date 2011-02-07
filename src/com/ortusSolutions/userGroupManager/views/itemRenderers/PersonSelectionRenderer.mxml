@@ -6,28 +6,28 @@
 						  click="clickHandler(event)">
 	<fx:Script>
 		<![CDATA[
-			import com.ortusSolutions.userGroupManager.vo.Attendee;
+			import com.ortusSolutions.userGroupManager.vo.MeetingAttendee;
 			
 			[Bindable]
-			private var attendee:Attendee;
+			private var meetingAttendee:MeetingAttendee;
 			
 			// TODO : replace this, it's not safe for non-personal use
 			[Embed("assets/Tasks.png")]
 			private var checkmark:Class;
 			
 			override public function set data(value:Object):void{
-				this.attendee = value as Attendee;
+				this.meetingAttendee = value as MeetingAttendee;
 				validateIcon();
-				super.data = this.attendee;
+				super.data = this.meetingAttendee;
 			}// end data setter override
 			
 			private function clickHandler(event:MouseEvent):void{
-				this.attendee.isAttending = !this.attendee.isAttending;
+				this.meetingAttendee.isAttending = !this.meetingAttendee.isAttending;
 				validateIcon();
 			}// end clickHandler function
 			
 			private function validateIcon():void{
-				if(attendee.isAttending){
+				if(meetingAttendee.isAttending){
 					this.decoratorClass = checkmark;
 				}else{
 					this.decoratorClass = null;
@@ -35,11 +35,11 @@
 			}// end validateIcon function
 			
 			private function getLabel(item:Object):String{
-				return attendee.person.fullName;
+				return meetingAttendee.person.fullName;
 			}// end getLabel function
 			
 			private function getMessage(item:Object):String{
-				return attendee.person.email;
+				return meetingAttendee.person.email;
 			}// end getMessage function
 			
 		]]>

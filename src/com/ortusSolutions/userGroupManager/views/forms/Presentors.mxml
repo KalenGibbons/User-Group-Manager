@@ -9,8 +9,11 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.ortusSolutions.common.utils.ArrayUtils;
+			import com.ortusSolutions.userGroupManager.model.Attendee;
 			import com.ortusSolutions.userGroupManager.model.Person;
-			import com.ortusSolutions.userGroupManager.vo.Attendee;
+			import com.ortusSolutions.userGroupManager.model.Presentor;
+			import com.ortusSolutions.userGroupManager.vo.MeetingAttendee;
 			
 			import mx.collections.ArrayCollection;
 			
@@ -19,9 +22,9 @@
 				if(people && meeting){
 					attendees = new ArrayCollection();
 					for each(var person:Person in people.source){
-						var index:int = meeting.presentors.source.indexOf(person);
+						var index:int = ArrayUtils.findInArray(meeting.presentors.source, person.id, 'id');
 						var inAttendance:Boolean = (index > -1);
-						attendees.addItem( new Attendee(person, inAttendance) );
+						attendees.addItem( new MeetingAttendee(person, inAttendance) );
 					}
 					attendees.refresh();
 				}
@@ -34,9 +37,9 @@
 			override protected function completionHandler():void{
 				// save the updated data
 				meeting.presentors.source = [];
-				for each(var attendee:Attendee in attendees.source){
-					if(attendee.isAttending){
-						meeting.presentors.addItem(attendee.person);
+				for each(var meetingAttendee:MeetingAttendee in attendees.source){
+					if(meetingAttendee.isAttending){
+						meeting.presentors.addItem( new Presentor().populate(meetingAttendee.person) );
 					}
 				}
 				navigator.popView();

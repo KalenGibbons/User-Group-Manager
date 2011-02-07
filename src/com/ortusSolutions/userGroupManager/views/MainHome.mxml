@@ -41,7 +41,7 @@
 					 verticalGap="120" horizontalGap="80">
 			<s:Button label="Meetings" click="navigator.pushView(MeetingList);" />
 			<s:Button label="Users" click="navigator.pushView(PersonList);" />
-			<s:Button label="Prizes" click="navigator.pushView(PersonList);" />
+			<s:Button label="Raffles" click="navigator.pushView(PersonList);" />
 			<s:Button label="Quick Raffle" click="navigator.pushView(PersonList);" />
 			<s:Button label="About" click="navigator.pushView(PersonList);" />
 			<s:Button label="Close" click="navigator.pushView(PersonList);" />

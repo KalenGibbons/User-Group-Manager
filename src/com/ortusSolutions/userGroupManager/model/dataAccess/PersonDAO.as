@@ -2,13 +2,10 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 	
 	import com.ortusSolutions.userGroupManager.model.Person;
 	
-	import flash.data.SQLConnection;
 	import flash.data.SQLResult;
 	import flash.data.SQLStatement;
 	
-	public class PersonDAO implements IDataAccess{
-		
-		private var _sqlConnection:SQLConnection;
+	public class PersonDAO extends BaseDAO implements IDataAccess{
 		
 		public function PersonDAO(){
 			super();
@@ -24,12 +21,13 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 		
 		public function getAll():Array{
 			var sql:String = 	"SELECT id, firstName, lastName, email, phone, twitter, facebook, createdDate " +
-								"FROM people";
+								"FROM people " +
+								"ORDER BY firstname, lastName, id";
 			var sqlStatement:SQLStatement = new SQLStatement();
-			sqlStatement.sqlConnection = this.sqlConnection;
+			sqlStatement.sqlConnection = super.sqlConnection;
 			sqlStatement.text = sql;
 			sqlStatement.execute();
-			return sqlStatement.getResult().data;
+			return getQueryResults(sqlStatement);
 		}// end getAll function
 		
 		public function getPersonByID(id:int):Array{
@@ -37,18 +35,18 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 								"FROM people" +
 								"WHERE id = @ID";
 			var sqlStatement:SQLStatement = new SQLStatement();
-			sqlStatement.sqlConnection = sqlConnection;
+			sqlStatement.sqlConnection = super.sqlConnection;
 			sqlStatement.text = sql;
 			sqlStatement.parameters["@ID"] = id;
 			sqlStatement.execute();
-			return sqlStatement.getResult().data;
+			return getQueryResults(sqlStatement);
 		}// end getPersonByID function
 		
 		public function savePerson(person:Person):Number{
 			var sql:String =	"INSERT INTO people (firstName, lastName, email, phone, twitter, facebook, createdDate)" +
 								"VALUES(@FIRST_NAME, @LAST_NAME, @EMAIL, @PHONE, @TWITTER, @FACEBOOK, @createdDate)";
 			var sqlStatement:SQLStatement = new SQLStatement();
-			sqlStatement.sqlConnection = this.sqlConnection;
+			sqlStatement.sqlConnection = super.sqlConnection;
 			sqlStatement.text = sql;
 			sqlStatement.parameters["@FIRST_NAME"] = 	person.firstName;
 			sqlStatement.parameters["@LAST_NAME"] = 	person.lastName;
@@ -65,19 +63,6 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 		}// end savePerson function
 		
 		/* ***************************************************************************************
-		**									GETTERS AND SETTERS
-		*************************************************************************************** */
-		
-		public function get sqlConnection():SQLConnection{
-			return _sqlConnection;
-		}// end sqlConnection getter
-		
-		[Inject]
-		public function set sqlConnection(connection:SQLConnection):void{
-			_sqlConnection = connection;
-		}// end sqlConnection setter
-
-		/* ***************************************************************************************
 		**									PRIVATE FUNCTIONS
 		*************************************************************************************** */
 		
@@ -92,7 +77,7 @@ package com.ortusSolutions.userGroupManager.model.dataAccess{
 								"facebook VARCHAR(50), " + 
 								"createdDate DATETIME NOT NULL)";
 			var sqlStatement:SQLStatement = new SQLStatement();
-			sqlStatement.sqlConnection = sqlConnection;
+			sqlStatement.sqlConnection = super.sqlConnection;
 			sqlStatement.text = sql;
 			sqlStatement.execute();
 		}// end createPeopleTable function

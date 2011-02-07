@@ -1,4 +1,5 @@
 package com.ortusSolutions.userGroupManager.model.dataAccess{
+	
 	import flash.data.SQLConnection;
 	
 	public interface IDataAccess{

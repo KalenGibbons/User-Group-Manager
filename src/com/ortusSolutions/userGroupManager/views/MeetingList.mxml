@@ -23,7 +23,7 @@
 			
 			private function meetingSelectionHandler(event:IndexChangeEvent):void{
 				var selectedMeeting:Meeting = event.target.selectedItem;
-				//navigator.pushView(meetingDetails, selectedMeeting);
+				navigator.pushView(MeetingDetails, selectedMeeting);
 			}// end meetingSelectionHandler function
 			
 		]]>

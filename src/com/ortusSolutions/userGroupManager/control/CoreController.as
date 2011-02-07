@@ -10,6 +10,8 @@ package com.ortusSolutions.userGroupManager.control{
 	import com.ortusSolutions.userGroupManager.model.services.PersonService;
 	import com.ortusSolutions.userGroupManager.vo.ResponseType;
 	
+	import org.spicefactory.parsley.core.messaging.MessageProcessor;
+	
 	public class CoreController{
 		
 		[Inject]
@@ -22,6 +24,18 @@ package com.ortusSolutions.userGroupManager.control{
 		
 		public function CoreController(){
 		}// end constructor
+		
+		/* ***************************************************************************************
+		**									GLOBAL HANDLERS
+		*************************************************************************************** */
+		
+		// TODO : add handler to catch RequestCompleteEvents with an response type of error
+
+		[MessageError]
+		public function globalErrorHandler(processor:MessageProcessor, error:Error):void{
+			// TODO : Do something whe erorrs are caught
+			trace('caught error');
+		}// end globalErrorHandler function
 		
 		[MessageHandler (selector="preloadAll")]
 		public function preloadData(event:ModelEvent):void{

@@ -60,16 +60,17 @@ package com.ortusSolutions.userGroupManager.model.services{
 		}// end loadPerson function
 		
 		public function savePerson(person:Person):void{
+			var sqlConnection:SQLConnection = personDAO.sqlConnection;
 			// begin transaction
-			personDAO.sqlConnection.begin();
+			sqlConnection.begin();
 			try{
 				// save person
 				personDAO.savePerson(person);
 				// commit transaction
-				personDAO.sqlConnection.commit();
+				sqlConnection.commit();
 			}catch(error:Error){
 				// rollback changes
-				personDAO.sqlConnection.rollback();
+				sqlConnection.rollback();
 				// dispatch error message
 				messageDispatcher( new RequestCompleteEvent(PersonEvent.SAVE, ResponseType.ERROR_OCCURRED, error) );
 				return;

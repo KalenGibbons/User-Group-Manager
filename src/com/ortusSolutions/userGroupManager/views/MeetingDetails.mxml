@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		title="MeetingDetails">
+	
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.model.Meeting;
+			
+			[Bindable]
+			private var meeting:Meeting;
+			
+			override public function set data(value:Object):void{
+				meeting = value as Meeting;
+				super.data = meeting;
+			}//end data setter function
+			
+		]]>
+	</fx:Script>
+	
+	<s:HGroup width="100%">
+		<s:Label text="Big Icon Here" />
+		<s:VGroup>
+			<s:Label text="{meeting.formattedDate}" />
+			<s:Label text="{meeting.topic}" />
+			<s:Label text="{meeting.attendees.length} attendees" />
+			<!-- TODO : Add method in meeting to display prentor(s) name(s) if less than 3 -->
+			<s:Label text="{meeting.presentors.length} presentors" />
+			<s:Label text="{meeting.raffles.length} raffles" />
+		</s:VGroup>
+	</s:HGroup>
+	
+</s:View>

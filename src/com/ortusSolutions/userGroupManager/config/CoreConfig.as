@@ -2,11 +2,17 @@ package com.ortusSolutions.userGroupManager.config{
 	
 	import com.ortusSolutions.userGroupManager.control.CoreController;
 	import com.ortusSolutions.userGroupManager.model.Person;
+	import com.ortusSolutions.userGroupManager.model.dataAccess.AttendeeDAO;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.MeetingDAO;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.PersonDAO;
+	import com.ortusSolutions.userGroupManager.model.dataAccess.PresentorDAO;
+	import com.ortusSolutions.userGroupManager.model.dataAccess.RaffleDAO;
+	import com.ortusSolutions.userGroupManager.model.services.AttendeeService;
 	import com.ortusSolutions.userGroupManager.model.services.CoreService;
 	import com.ortusSolutions.userGroupManager.model.services.MeetingService;
 	import com.ortusSolutions.userGroupManager.model.services.PersonService;
+	import com.ortusSolutions.userGroupManager.model.services.PresentorService;
+	import com.ortusSolutions.userGroupManager.model.services.RaffleService;
 	
 	import flash.data.SQLConnection;
 	
@@ -27,14 +33,17 @@ package com.ortusSolutions.userGroupManager.config{
 		public var coreService:CoreService;
 		public var personService:PersonService;
 		public var meetingService:MeetingService;
+		public var attendeeService:AttendeeService;
+		public var presentorService:PresentorService;
+		public var raffleService:RaffleService;
 		
 		// model - data access
 		public var personDAO:PersonDAO;
 		public var meetingDAO:MeetingDAO;
+		public var attendeeDAO:AttendeeDAO;
+		public var presentorDAO:PresentorDAO;
+		public var raffleDAO:RaffleDAO;
 
-		// model - vo
-		public var person:Person = 					new Person();
-		
 		// data
 		public var people:ArrayCollection = 		new ArrayCollection();
 		public var meetings:ArrayCollection =		new ArrayCollection();
@@ -49,11 +58,23 @@ package com.ortusSolutions.userGroupManager.config{
 		public function CoreConfig(){
 			coreService = new CoreService(databaseName);
 			dbConnection = coreService.getBaseConnection();
-			personDAO = new PersonDAO();
-			meetingDAO = new MeetingDAO();
-			personService = new PersonService();
-			meetingService = new MeetingService();
-			coreController = new CoreController();
+			
+			// model - data access
+			personDAO =		 	new PersonDAO();
+			meetingDAO = 		new MeetingDAO();
+			attendeeDAO = 		new AttendeeDAO();
+			presentorDAO = 		new PresentorDAO();
+			raffleDAO = 		new RaffleDAO();
+			
+			// model - services
+			personService = 	new PersonService();
+			meetingService =	new MeetingService();
+			attendeeService =	new AttendeeService();
+			presentorService = 	new PresentorService();
+			raffleService =		new RaffleService();
+			
+			// controller
+			coreController = 	new CoreController();
 		}// end constructor
 		
 	}// end CoreConfig class

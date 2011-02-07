@@ -3,6 +3,10 @@
 		xmlns:s="library://ns.adobe.com/flex/spark"
 		title="PrizeForm">
 	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="raffleWeight" />
+	</fx:Declarations>
+	
 	<s:states>
 		<s:State name="preRaffle" />
 		<s:State name="postRaffle" />
@@ -13,7 +17,10 @@
 			<s:Label text="Prize:" />
 			<s:TextInput id="iPrize" />
 		</s:HGroup>
-		<s:RadioButton id="iWeight" />
+		
+		<s:RadioButton group="{raffleWeight}" value="all" label="All memebers" />
+		<s:RadioButton group="{raffleWeight}" value="todaysMeeting" label="Today's attendees only" />
+		<s:RadioButton group="{raffleWeight}" value="lastNMeetings" label="Attendance of last n meetings" />
 		
 		<s:VGroup includeIn="preRaffle" width="100%" height="100%">
 			<s:Button label="Raffle Prize" click="this.currentState='postRaffle'" />

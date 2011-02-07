@@ -157,7 +157,7 @@
 			<s:HGroup verticalAlign="middle">
 				<s:Label text="Raffles:" width="{labelWidth}" />
 				<s:Button label="Add Raffles" width="{inputWidth-22}" height="{buttonHeight}"
-						  click="trace('click');"
+						  click="navigator.pushView(RaffleForm)"
 						  visible="{meeting.raffles.length == 0}" includeInLayout="{meeting.raffles.length == 0}" />
 				<s:Label text="{meeting.raffles.length} raffle winners" width="{inputWidth}"
 						 visible="{meeting.raffles.length > 0}" includeInLayout="{meeting.raffles.length > 0}" />
