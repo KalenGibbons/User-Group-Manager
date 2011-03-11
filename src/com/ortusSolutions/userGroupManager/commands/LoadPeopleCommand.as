@@ -16,7 +16,7 @@ package com.ortusSolutions.userGroupManager.commands{
 		[MessageDispatcher]
 		public var messageDispatcher:Function;
 		
-		[Inject]
+		[Inject(id="people")]
 		public var people:ArrayCollection;
 		
 		[Inject]

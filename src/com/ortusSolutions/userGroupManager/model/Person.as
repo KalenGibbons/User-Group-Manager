@@ -1,5 +1,7 @@
 package com.ortusSolutions.userGroupManager.model{
 	
+	import com.ortusSolutions.userGroupManager.config.Settings;
+	
 	import mx.formatters.DateFormatter;
 	
 	public class Person extends BaseVO{
@@ -15,25 +17,21 @@ package com.ortusSolutions.userGroupManager.model{
 		public var createdDate:Date;
 		
 		// custom properties
-		[Inject(id="dateFormat")]
-		public var dateFormat:String;
-		public var isLoaded:Boolean = false;
-		
 		private var dateFormatter:DateFormatter;
 		
 		public function Person(){
 			super();
-		}// end constructor
-		
-		[Init]
-		public function injectionHandler():void{
 			dateFormatter = new DateFormatter();
-			dateFormatter.formatString = "";
-		}// end injectionHandler function
+			dateFormatter.formatString = Settings.DATE_FORMAT;
+		}// end constructor
 		
 		public function get memberSince():String{
 			return dateFormatter.format(this.createdDate);
-		}// end memberSince function
+		}// end memberSince getter
+		
+		public function get fullName():String{
+			return this.firstName + ' ' + this.lastName;
+		}// end fullName getter
 		
 	}// end Person class
 	

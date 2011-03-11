@@ -4,7 +4,7 @@ package com.ortusSolutions.userGroupManager.commands{
 	import com.ortusSolutions.userGroupManager.events.PersonEvent;
 	import com.ortusSolutions.userGroupManager.events.RequestCompleteEvent;
 	import com.ortusSolutions.userGroupManager.model.Person;
-	import com.ortusSolutions.userGroupManager.model.PersonDAO;
+	import com.ortusSolutions.userGroupManager.model.dataAccess.PersonDAO;
 	import com.ortusSolutions.userGroupManager.vo.ResponseType;
 	
 	[Event(name="savePerson", type="com.ortusSolutions.userGroupManager.events.RequestCompleteEvent")]

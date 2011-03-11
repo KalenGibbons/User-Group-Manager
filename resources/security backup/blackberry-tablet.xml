@@ -1,0 +1,11 @@
+<qnx>
+  <initialWindow>
+    <systemChrome>none</systemChrome>
+    <transparent>false</transparent>
+  </initialWindow>
+  <publisher>Kalen Gibbons</publisher>
+  <category>core.all</category>
+  <icon>
+  	<image>blackberry-tablet-icon.png</image>
+  </icon>
+</qnx>

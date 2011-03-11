@@ -6,7 +6,8 @@
 	
 	<fx:Metadata>
 		[Event(name="savePerson", type="com.ortusSolutions.userGroupManager.events.PersonEvent")]
-		[ManagedEvents("savePerson")]
+		[Event(name="showNotification", type="com.ortusSolutions.userGroupManager.events.NotificationEvent")]
+		[ManagedEvents("savePerson,showNotification")]
 	</fx:Metadata>
 	
 	<s:states>
@@ -14,17 +15,44 @@
 		<s:State name="editUser" />
 	</s:states>
 	
+	<fx:Declarations>
+		<mx:StringValidator id="nameValidator" required="true" source="{iFirstName}" property="text" />
+		<mx:EmailValidator id="emailValidator" required="false" source="{iEmail}" property="text" />
+		<mx:PhoneNumberValidator id="phoneValidator" required="false"  source="{iPhone}" property="text" />
+	</fx:Declarations>
+	
 	<fx:Script>
 		<![CDATA[
+			import com.ortusSolutions.userGroupManager.config.Settings;
+			import com.ortusSolutions.userGroupManager.events.NotificationEvent;
 			import com.ortusSolutions.userGroupManager.events.PersonEvent;
+			import com.ortusSolutions.userGroupManager.events.RequestCompleteEvent;
 			import com.ortusSolutions.userGroupManager.model.Person;
+			import com.ortusSolutions.userGroupManager.vo.NotificationTypes;
+			import com.ortusSolutions.userGroupManager.vo.ResponseType;
 			
-			private const NEW_USER_TITLE:String =	"Create a new user";
-			private const EDIT_USER_TITLE:String = 	"Edit ";
+			import flash.utils.setTimeout;
+			
+			import mx.events.ValidationResultEvent;
+			
+			private const NEW_MEMBER_TITLE:String =	"Create a New Member";
+			private const EDIT_MEMBER_TITLE:String = 	"Edit Member : ";
 			
 			[Bindable]
 			private var person:Person;
-
+			
+			[MessageHandler (selector="savePerson")]
+			[MessageHandler (selector="editPerson")]
+			public function saveCompletionHandler(event:RequestCompleteEvent):void{
+				// if save was successful, go back to previous view
+				if(event.responseType == ResponseType.RESULT_OK){
+					// add slight delay for effect
+					setTimeout( function():void{
+						navigator.popView();
+					}, Settings.SAVE_DELAY);
+				}
+			}// end saveCompletionHandler function
+			
 			protected function addedToStageHandler():void{
 				this.dispatchEvent( new Event("configureView", true) );
 			}// end addedToStageHandler function
@@ -32,87 +60,135 @@
 			override public function set data(value:Object):void{
 				if(value == null){
 					person = new Person();
-					this.title = NEW_USER_TITLE;
+					this.title = NEW_MEMBER_TITLE;
 					this.currentState = "newUser";
 				}else if(value is Person){
 					person = value as Person;
-					this.title = EDIT_USER_TITLE + person.firstName + " " + person.lastName;
+					this.title = EDIT_MEMBER_TITLE + person.firstName + " " + person.lastName;
 					this.currentState = "editUser";
+					populateForm();
 				}
 			}//end data setter function
 			
-			private function submitHandler():void{
-				// TODO : Add validation
-				var person:Person = new Person();
-				person.firstName =	iFirstName.text;
-				person.lastName = 	iLastName.text;
-				person.email = 		iEmail.text;
-				person.phone = 		iPhone.text;
-				person.twitter = 	iTwitter.text;
-				person.facebook = 	iFacebook.text;
-				// save the person
-				this.dispatchEvent( new PersonEvent(PersonEvent.SAVE, person) );
+			override public function createReturnObject():Object{
+				return this.person;
+			}// end createReturnObject override function
+			
+			protected function submitHandler():void{
+				if(validateForm()){
+					person.firstName =	iFirstName.text;
+					person.lastName = 	iLastName.text;
+					person.email = 		iEmail.text;
+					person.phone = 		iPhone.text;
+					//person.twitter = 	iTwitter.text;
+					//person.facebook = 	iFacebook.text;
+					// save the person
+					this.dispatchEvent( new PersonEvent(PersonEvent.SAVE, person) );
+				}
 			}// end submitHandler function
-
+			
+			private function validateForm():Boolean{
+				var errors:Array = [];
+				if(nameValidator.validate().results != null){
+					errors.push("Please enter the member's first name");
+				}
+				if(emailValidator.validate().results != null){
+					errors.push("The email address entered is invalid");
+				}
+				if(phoneValidator.validate().results != null){
+					errors.push("The phone number entered is invalid");
+				}
+				
+				if(errors.length > 0){
+					var errorMessage:String = (errors.length == 1) ? errors[0] : formatValidationMessage(errors);
+					this.dispatchEvent( new NotificationEvent(NotificationEvent.SHOW, errorMessage, NotificationTypes.VALIDATION_ERROR) );
+				}
+				
+				return (errors.length == 0);
+			}// end validateForm function
+			
+			private function formatValidationMessage(errors:Array):String{
+				var message:String = "";
+				for each(var error:String in errors){
+					message += error + "\n";
+				}
+				return message.substr(0, message.length-1);
+			}// end formatValidationMessage function
+			
+			private function populateForm():void{
+				iFirstName.text = 	person.firstName;
+				iLastName.text =	person.lastName;
+				iEmail.text = 		person.email;
+				iPhone.text = 		person.phone;
+			}// end populateForm function
+			
 		]]>
 	</fx:Script>
-
+	
 	<fx:Declarations>
 		<mx:EmailValidator />
 	</fx:Declarations>
 	
-	<s:VGroup width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
-		
-		<!-- member since -->
-		<s:HGroup includeIn="editUser">
-			<s:Label text="Member Since: {person.memberSince}" />
-		</s:HGroup>
-		
-		<s:HGroup>
-			<!-- first name -->
+	<s:Scroller top="0" bottom="0" left="0" right="0">
+		<s:VGroup gap="25"
+				  paddingTop="25" paddingBottom="25"
+				  horizontalAlign="center" verticalAlign="middle">
+			
+			<!-- TODO : get this to look nice and add it back in -->
+			<!-- member since
+			<s:HGroup includeIn="editUser">
+				<s:Label text="Member Since : {person.memberSince}" />
+			</s:HGroup> -->
+			
+			<s:HGroup>
+				<!-- TODO : add "required" indicator for first name -->
+				<!-- first name -->
+				<s:VGroup>
+					<s:Label text="First Name:" styleName="highlight" />
+					<s:TextInput id="iFirstName" maxChars="50" width="440" />
+				</s:VGroup>
+				<!-- last name -->
+				<s:VGroup>
+					<s:Label text="Last Name:" styleName="highlight" />
+					<s:TextInput id="iLastName" maxChars="50" width="440" />
+				</s:VGroup>
+			</s:HGroup>
+			
+			
+			<s:HGroup>
+				<!-- email -->
+				<s:VGroup>
+					<s:Label text="Email:" styleName="highlight" />
+					<s:TextInput id="iEmail" maxChars="50" width="440" />
+				</s:VGroup>
+				<!-- phone -->
+				<s:VGroup>
+					<s:Label text="Phone:" styleName="highlight" />
+					<s:TextInput id="iPhone" maxChars="30" width="440" />
+				</s:VGroup>
+			</s:HGroup>
+			
+			<!--
+			<s:HGroup>
+			<!** twitter **>
 			<s:VGroup>
-				<s:Label text="First Name:" />
-				<s:TextInput id="iFirstName" />
+			<s:Label text="Twitter:" />
+			<s:TextInput id="iTwitter" maxChars="50" width="440"  />
 			</s:VGroup>
-			<!-- last name -->
+			<!** facebook **>
 			<s:VGroup>
-				<s:Label text="Last Name:" />
-				<s:TextInput id="iLastName" />
+			<s:Label text="Facebook:" />
+			<s:TextInput id="iFacebook" maxChars="50" width="440"  />
 			</s:VGroup>
-		</s:HGroup>
-		
-		
-		<s:HGroup>
-			<!-- email -->
-			<s:VGroup>
-				<s:Label text="Email:" />
-				<s:TextInput id="iEmail" />
-			</s:VGroup>
-			<!-- phone -->
-			<s:VGroup>
-				<s:Label text="Phone:" />
-				<s:TextInput id="iPhone" />
-			</s:VGroup>
-		</s:HGroup>
-		
-		<s:HGroup>
-			<!-- twitter -->
-			<s:VGroup>
-				<s:Label text="Twitter:" />
-				<s:TextInput id="iTwitter" />
-			</s:VGroup>
-			<!-- facebook -->
-			<s:VGroup>
-				<s:Label text="Facebook:" />
-				<s:TextInput id="iFacebook" />
-			</s:VGroup>
-		</s:HGroup>
-		
-		<!-- Submit or cancel -->
-		<s:HGroup>
-			<s:Button label="Cancel" click="navigator.popView()" />
-			<s:Button label="Submit" click="submitHandler()" />
-		</s:HGroup>
-	</s:VGroup>
+			</s:HGroup>
+			-->
+			
+			<!-- Submit or cancel -->
+			<s:HGroup gap="10">
+				<s:Button label="Cancel" click="navigator.popView()" width="225" />
+				<s:Button label="Submit" click="submitHandler()" width="225" />
+			</s:HGroup>
+		</s:VGroup>
+	</s:Scroller>
 	
 </s:View>

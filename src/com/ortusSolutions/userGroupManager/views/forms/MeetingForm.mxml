@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		addedToStage="addedToStageHandler()">
+	
+	<fx:Metadata>
+		[Event(name="saveMeeting", type="com.ortusSolutions.userGroupManager.events.MeetingEvent")]
+		[ManagedEvents("saveMeeting")]
+	</fx:Metadata>
+	
+	<s:states>
+		<s:State name="newMeeting" />
+		<s:State name="editMeeting" />
+	</s:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.config.Settings;
+			import com.ortusSolutions.userGroupManager.events.MeetingEvent;
+			import com.ortusSolutions.userGroupManager.events.RequestCompleteEvent;
+			import com.ortusSolutions.userGroupManager.model.Meeting;
+			import com.ortusSolutions.userGroupManager.vo.ResponseType;
+			
+			import mx.collections.ArrayCollection;
+			
+			private const NEW_MEETING_TITLE:String =	"Create a new meeting";
+			private const EDIT_MEETING_TITLE:String = 	"Edit Meeting :  ";
+			
+			[Bindable]
+			private var meeting:Meeting;
+			
+			[Embed("/assets/icons/edit.png")]
+			private var editIcon:Class;
+			
+			[Embed("/assets/icons/add.png")]
+			private var addIcon:Class;
+			
+			private var labelWidth:int = 180;
+			private var inputWidth:int = 460;
+			private var buttonHeight:int = 48;
+			
+			[MessageHandler (selector="saveMeeting")]
+			[MessageHandler (selector="editMeeting")]
+			public function saveCompletionHandler(event:RequestCompleteEvent):void{
+				// if save was successful, go back to previous view
+				if(event.responseType == ResponseType.RESULT_OK){
+					// add slight delay for effect
+					setTimeout( function():void{
+						navigator.popView();
+					}, Settings.SAVE_DELAY);
+				}
+			}// end saveCompletionHandler function
+			
+			// TODO : need ability to roll back changes if user cancels
+
+			protected function addedToStageHandler():void{
+				this.dispatchEvent( new Event("configureView", true) );
+			}// end addedToStageHandler function
+			
+			protected function textInputFocusHandler(event:Event):void{
+				event.currentTarget.selectAll();
+			}// end textInputFocusHandler function
+			
+			protected function yearInputFocusHandler(event:Event):void{
+				if(iYear.text.length == 4){
+					iYear.selectRange(2,4);
+				}
+			}// end yearInputFocusHandler function
+			
+			override public function set data(value:Object):void{
+				if(value == null){
+					meeting = new Meeting();
+					meeting.presenters = new ArrayCollection();
+					meeting.raffles = new ArrayCollection();
+					meeting.attendees = new ArrayCollection();
+				}else if(value is Meeting){
+					meeting = value as Meeting;
+				}
+				// determine if this is a new meeting or an existing meeting
+				if(meeting.id && meeting.id != 0){
+					this.title = EDIT_MEETING_TITLE + meeting.formattedDate;
+					this.currentState = "editMeeting";
+				}else{
+					this.title = NEW_MEETING_TITLE;
+					this.currentState = "newMeeting";
+				}
+				
+				super.data = meeting;
+			}//end data setter function
+			
+			private function loadAdditionalForm(factory:Class):void{
+				// save updates before loading next form
+				// TODO : Do we want to save updates to the DB before the user is done??
+				saveMeeting();
+				// TODO : pass all params as object so that the view can tack on their own data
+				navigator.pushView(factory, {meeting : meeting});
+			}// end loadAdditionalForm function
+			
+			private function submitHandler():void{
+				// TODO : Add validation
+				saveMeeting();
+				// save the meeting
+				this.dispatchEvent( new MeetingEvent(MeetingEvent.SAVE, meeting) );
+			}// end submitHandler function
+			
+			private function saveMeeting():void{
+				// TODO : Validate before saving
+				var year:int = 	int(iYear.text);
+				var month:int = int(iMonth.text);
+				var day:int = 	int(iDay.text);
+				meeting.date = 	new Date(year, month-1, day);
+				meeting.topic = iTopic.text;
+			}// end saveMeeting function
+			
+			private function fixNumber(value:int):String{
+				var fixedNumber:String =  value.toString();
+				if(value >= 0 && value < 10){
+					fixedNumber = '0' + fixedNumber;
+				}
+				return fixedNumber;
+			}// end fixNumber function
+
+		]]>
+	</fx:Script>
+	
+	<s:Scroller top="0" bottom="0" left="0" right="0">
+		
+		<s:VGroup gap="25"
+				  top="0" bottom="0" left="0" right="0"
+				  paddingTop="25" paddingBottom="25"
+				  horizontalAlign="center" verticalAlign="middle">
+			
+			<s:VGroup gap="15">
+				
+				<!-- meeting date -->			
+				<s:HGroup verticalAlign="middle">
+					<s:Label text="Meeting Date:" width="{labelWidth}" styleName="highlight" />
+					<!-- TODO : See if we can find a better input mechanism -->
+					<s:HGroup gap="15" width="{inputWidth}" verticalAlign="bottom">
+						<s:TextInput id="iMonth" text="{fixNumber(meeting.date.month+1)}"
+									 textAlign="center" width="100"
+									 maxChars="2" restrict="0-9"
+									 focusIn="textInputFocusHandler(event)" />
+						<s:Label text="/" fontSize="50" verticalAlign="middle" />
+						<s:TextInput id="iDay" text="{fixNumber(meeting.date.date)}"
+									 textAlign="center" width="100"
+									 maxChars="2" restrict="0-9"
+									 focusIn="textInputFocusHandler(event)" />
+						<s:Label text="/" fontSize="50" verticalAlign="middle" />
+						<s:TextInput id="iYear" text="{meeting.date.fullYear}"
+									 textAlign="center" width="150"
+									 maxChars="4" restrict="0-9"
+									 focusIn="yearInputFocusHandler(event)" />
+					</s:HGroup>
+				</s:HGroup>
+				
+				<!-- Topic -->
+				<s:HGroup verticalAlign="middle">
+					<s:Label text="Topic:" width="{labelWidth}" styleName="highlight" />
+					<s:TextArea id="iTopic" text="{meeting.topic}" maxChars="255" />
+				</s:HGroup>
+				
+				<!-- presenters -->			
+				<s:HGroup verticalAlign="middle">
+					<s:Label text="Presenters :" width="{labelWidth}" styleName="highlight" />
+					<s:Button label="Add Presenter"
+							  width="{inputWidth-22}" height="{buttonHeight}"
+							  click="loadAdditionalForm(Presenters)"
+							  visible="{meeting.presenters.length == 0}" includeInLayout="{meeting.presenters.length == 0}" />				
+					<s:Label text="{meeting.presenters.length } {(meeting.presenters.length>1) ? 'presenters' : 'presenter'}"
+							 width="{inputWidth-162}"
+							 visible="{meeting.presenters.length > 0}" includeInLayout="{meeting.presenters.length > 0}" />
+					<s:Button icon="{editIcon}" label="Edit" height="{buttonHeight}"
+							  visible="{meeting.presenters.length > 0}" includeInLayout="{meeting.presenters.length > 0}"
+							  click="loadAdditionalForm(Presenters)" />
+				</s:HGroup>
+				
+				<!-- attendees -->			
+				<s:HGroup verticalAlign="middle">
+					<s:Label text="Attendees :" width="{labelWidth}" styleName="highlight" />
+					<s:Button label="Add Attendees"
+							  width="{inputWidth-22}" height="{buttonHeight}"
+							  click="loadAdditionalForm(Attendees)"
+							  visible="{meeting.attendees.length == 0}" includeInLayout="{meeting.attendees.length == 0}" />
+					<s:Label text="{meeting.attendees.length } {(meeting.attendees.length>1) ? 'members' : 'member'}"
+							 width="{inputWidth-162}"
+							 visible="{meeting.attendees.length > 0}" includeInLayout="{meeting.attendees.length > 0}" />
+					<s:Button icon="{editIcon}" label="Edit" height="{buttonHeight}"
+							  click="loadAdditionalForm(Attendees)"
+							  visible="{meeting.attendees.length > 0}" includeInLayout="{meeting.attendees.length > 0}" />
+				</s:HGroup>
+				
+				<!-- raffles -->			
+				<s:HGroup verticalAlign="middle">
+					<s:Label text="Raffles :" width="{labelWidth}" styleName="highlight" />
+					<s:Button label="Add Raffles"
+							  width="{inputWidth-22}" height="{buttonHeight}"
+							  click="loadAdditionalForm(RaffleForm)"
+							  visible="{meeting.raffles.length == 0}" includeInLayout="{meeting.raffles.length == 0}" />
+					<s:Label text="{meeting.raffles.length} {(meeting.raffles.length>1) ? 'winners' : 'winner'}" width="{inputWidth-163}"
+							 visible="{meeting.raffles.length > 0}" includeInLayout="{meeting.raffles.length > 0}" />
+					<s:Button icon="{editIcon}" label="Add" height="{buttonHeight}"
+							  click="loadAdditionalForm(RaffleForm)"
+							  visible="{meeting.raffles.length > 0}" includeInLayout="{meeting.raffles.length > 0}"/>
+				</s:HGroup>
+	
+				<!-- Submit or cancel -->
+				<s:HGroup gap="15" paddingLeft="{labelWidth+8}" paddingTop="10">
+					<s:Button label="Cancel" click="navigator.popView()" width="211" />
+					<s:Button label="Submit" click="submitHandler()" width="211" />
+				</s:HGroup>
+			</s:VGroup>
+			
+		</s:VGroup>
+		
+	</s:Scroller>
+</s:View>

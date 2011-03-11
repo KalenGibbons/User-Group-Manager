@@ -4,16 +4,39 @@
 					 firstView="com.ortusSolutions.userGroupManager.views.MainHome"
 					 addedToStage="addedToStageHandler()">
 	
+	<fx:Style source="com/ortusSolutions/userGroupManager/styles/MainStyles.css" />
+	
 	<fx:Script>
 		<![CDATA[
-			import com.ortusSolutions.userGroupManager.config.UserGroupManagerConfig;
+			import com.ortusSolutions.userGroupManager.config.CoreConfig;
+			import com.ortusSolutions.userGroupManager.events.NotificationEvent;
+			import com.ortusSolutions.userGroupManager.views.Notification;
+			
+			import mx.managers.PopUpManager;
 			
 			import org.spicefactory.parsley.flex.FlexContextBuilder;
 			
+			private var notificationPopup:Notification;
+			
 			private function addedToStageHandler():void{
 				// config the IOC container
-				FlexContextBuilder.build(UserGroupManagerConfig, this);
+				FlexContextBuilder.build(CoreConfig, this);
+				this.dispatchEvent( new Event("configureView", true) );
 			}// end addedToStageHandler function
+			
+			[MessageHandler]
+			public function notificationHandler(event:NotificationEvent):void{
+				if(event.message.length > 0){
+					if(notificationPopup == null){
+						notificationPopup = PopUpManager.createPopUp(this, Notification) as Notification;
+					}else{
+						PopUpManager.addPopUp(notificationPopup, this);
+					}
+					notificationPopup.message = event.message;
+					notificationPopup.type = event.notificationType;
+					PopUpManager.centerPopUp(notificationPopup);
+				}
+			}// end notificationHandler function
 		]]>
 	</fx:Script>
 	
@@ -23,7 +46,8 @@
 	
 	<!-- shared action bar -->
 	<s:navigationContent>
-		<s:Button label="Home" click="navigator.popToFirstView()"/>
+		<s:Button icon="@Embed('/assets/icons/home.png')" click="navigator.popToFirstView();" />
+		<s:Button icon="@Embed('/assets/icons/back.png')" click="navigator.popView()" />
 	</s:navigationContent>
 	
 </s:MobileApplication>

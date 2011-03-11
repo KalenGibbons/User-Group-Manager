@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 addedToStage="addedToStageHandler();">
+	
+	<s:states>
+		<s:State name="success" />
+		<s:State name="failure" />
+		<s:State name="validation" />
+	</s:states>
+	
+	<fx:Declarations>
+		<s:Fade id="fader" target="{this}" duration="800" alphaFrom="1" alphaTo="0" effectEnd="fadeEndHandler(event)" />
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.config.Settings;
+			import com.ortusSolutions.userGroupManager.events.NotificationEvent;
+			import com.ortusSolutions.userGroupManager.vo.NotificationTypes;
+			
+			import mx.events.EffectEvent;
+			import mx.managers.PopUpManager;
+			
+			import spark.effects.supportClasses.FadeInstance;
+			
+			[Bindable]
+			public var message:String;
+			
+			private static const STATE_SUCCESS:String = 	"success";
+			private static const STATE_FAILURE:String = 	"failure";
+			private static const STATE_VALIDATION:String = 	"validation";
+			
+			private var timer:Timer;
+			private var _type:int;
+			private var _notificationDelay:int = Settings.NOTIFICATION_DURATION_SUCCESS;
+			
+			protected function addedToStageHandler():void{
+				// create and start timer
+				if(timer == null){
+					timer = new Timer(notificationDelay, 1);
+				}
+				// stop running timer
+				if(timer.running){
+					timer.stop();
+				}
+				// stop running fade
+				if(fader.isPlaying){
+					fader.stop();
+				}
+				// fade message in
+				fader.play(null, true);
+				// add event listener and start timer
+				timer.addEventListener(TimerEvent.TIMER_COMPLETE, timerCompletionHandler);
+				timer.start();
+			}// end addedToStageHandler function
+			
+			private function timerCompletionHandler(event:TimerEvent):void{
+				// remove evennt listener and start fading out
+				timer.removeEventListener(TimerEvent.TIMER_COMPLETE, timerCompletionHandler);
+				fader.play();
+			}// end timerCompletionHandler function
+
+			protected function fadeEndHandler(event:EffectEvent):void{
+				// after fading out, remove from stage
+				if(!(event.effectInstance as FadeInstance).animation.playReversed){
+					PopUpManager.removePopUp(this);
+				}
+			}// end fadeEndHandler function
+			
+			public function get type():int{
+				return _type;
+			}// end type getter
+			
+			public function set type(value:int):void{
+				_type = value;
+				switch(value){
+					case NotificationTypes.SUCCESS:
+						this.currentState = 		STATE_SUCCESS;
+						this.notificationDelay = 	Settings.NOTIFICATION_DURATION_SUCCESS;
+						break;
+					case NotificationTypes.FAULT:
+						this.currentState = 		STATE_FAILURE;
+						this.notificationDelay = 	Settings.NOTIFICATION_DURATION_FAULT;
+						break;
+					case NotificationTypes.VALIDATION_ERROR:
+						this.currentState = 		STATE_VALIDATION;
+						this.notificationDelay = 	Settings.NOTIFICATION_DURATION_VALIDATION
+						break;
+				}
+			}// end type setter
+			
+			public function get notificationDelay():int{
+				return _notificationDelay;
+			}// end notificationDelay getter
+
+			public function set notificationDelay(value:int):void{
+				_notificationDelay = value;
+				if(timer != null) timer.delay = value;
+			}// end notificationDelay setter
+
+// end type setter
+
+		]]>
+	</fx:Script>
+	
+	<!-- TODO : add icons at work -->
+	
+	<!-- drop shadow -->
+	<s:RectangularDropShadow distance="7" alpha=".85"
+							 blurX="7" blurY="7"
+							 top="0" bottom="0" left="0" right="0" />
+	
+	<!-- background and border -->
+	<s:Rect top="0" bottom="0" left="0" right="0"
+			radiusX="4" radiusY="4">
+		<s:stroke>
+			<s:SolidColorStroke color.success="0x339933" color.failure="0xC00000" color.validation="0xC3C39E" weight="2"/>
+		</s:stroke>
+		<s:fill>
+			<s:SolidColor color.success="0xDDEBDF" color.failure="0xFFF3F2" color.validation="0xFFFFCC" />
+		</s:fill>
+	</s:Rect>
+	
+	<!-- message text -->
+	<s:HGroup paddingLeft="30" paddingRight="30" paddingTop="25" paddingBottom="25">
+		<s:Label text="{message}" fontSize="20"
+				 color.success="0x194A19" color.failure="0x563F3E" color.validation="0x56563E" />
+	</s:HGroup>
+	
+</s:Group>

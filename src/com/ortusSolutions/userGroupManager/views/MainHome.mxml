@@ -1,32 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		xmlns:s="library://ns.adobe.com/flex/spark"
-		title=""
+		title="{Settings.APPLICATION_NAME}"
 		addedToStage="addedToStageHandler()">
 	
 	<fx:Metadata>
-		[Event(name="loadPeople", type="com.ortusSolutions.userGroupManager.events.ModelEvent")]
-		[ManagedEvents("loadPeople")]
+		[Event(name="intializeModel", type="com.ortusSolutions.userGroupManager.events.ModelEvent")]
+		[Event(name="preloadAll", type="com.ortusSolutions.userGroupManager.events.ModelEvent")]
+		[ManagedEvents("preloadAll,intializeModel")]
 	</fx:Metadata>
 	
 	<fx:Script>
 		<![CDATA[
+			import com.ortusSolutions.userGroupManager.config.Settings;
 			import com.ortusSolutions.userGroupManager.events.ModelEvent;
-			import com.ortusSolutions.userGroupManager.model.PersonDAO;
+			import com.ortusSolutions.userGroupManager.model.Raffle;
+			import com.ortusSolutions.userGroupManager.model.dataAccess.PersonDAO;
+			import com.ortusSolutions.userGroupManager.vo.RaffleType;
 			
-			[Inject(id="applicationName")]
-			public var applicationName:String;
+			import mx.collections.ArrayCollection;
+			
+			[Inject(id="people")]
+			public var people:ArrayCollection;
 			
 			protected function addedToStageHandler():void{
 				this.dispatchEvent( new Event("configureView", true) );
+				// preloaded all the locally stored data - the controller will only preload the data once
+				this.dispatchEvent( new ModelEvent(ModelEvent.PRELOAD_ALL) );
 			}// end addedToStageHandler function
 			
-			[Init]
-			public function iocInitializedHandler():void{
-				// preloaded all the locally stored data
-				this.dispatchEvent( new ModelEvent(ModelEvent.LOAD_PEOPLE) );
-				this.title = this.applicationName;
-			}// end iocInitializedHandler function
+			private function quickRaffle():void{
+				var qkRaffle:Raffle = new Raffle();
+				qkRaffle.eligibleMembers = people.source.slice();
+				qkRaffle.raffleType = RaffleType.QUICK_RAFFLE;
+				navigator.pushView(RaffleWinnerSelector, {raffle : qkRaffle});
+			}// end quickRaffle function
+			
+			private function closeApplication():void{
+				NativeApplication.nativeApplication.exit();
+			}// end closeApplication function
 			
 		]]>
 	</fx:Script>
@@ -35,30 +47,16 @@
 	<s:navigationContent />
 	
 	<!-- Grid for main application icons -->
-	<s:VGroup width="100%" height="100%">
-		<s:HGroup width="100%" height="100%">
-			<s:HGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-				<s:Button label="Meetings" click="navigator.pushView(PersonList);" />
-			</s:HGroup>
-			<s:HGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-				<s:Button label="Users" click="navigator.pushView(PersonList);" />
-			</s:HGroup>
-			<s:HGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-				<s:Button label="Prizes" click="navigator.pushView(PersonList);" />
-			</s:HGroup>
-		</s:HGroup>
-		<s:HGroup width="100%" height="100%">
-			<s:HGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-				<s:Button label="Something" click="navigator.pushView(PersonList);" />
-			</s:HGroup>
-			<s:HGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-				<s:Button label="Settings" click="navigator.pushView(PersonList);" />
-			</s:HGroup>
-			<s:HGroup width="100%" height="100%" verticalAlign="middle" horizontalAlign="center">
-				<s:Button label="About" click="navigator.pushView(PersonList);" />
-			</s:HGroup>
-		</s:HGroup>
+	<s:VGroup top="0" bottom="0" left="0" right="0" verticalAlign="middle" horizontalAlign="center">
+		<s:TileGroup id="menu" requestedColumnCount="3"
+					 verticalGap="120" horizontalGap="80">
+			<s:Button label="Meetings" click="navigator.pushView(MeetingList);" icon="@Embed('/assets/icons/meeting-sm.png')" />
+			<s:Button label="Members" click="navigator.pushView(PersonList);" icon="@Embed('/assets/icons/user-sm.png')" />
+			<s:Button label="Raffles" click="navigator.pushView(RaffleList);" icon="@Embed('/assets/icons/raffle-sm.png')" />
+			<s:Button label="Quick Raffle" click="quickRaffle()" icon="@Embed('/assets/icons/raffle-quick.png')" />
+			<s:Button label="About" click="navigator.pushView(About);" icon="@Embed('/assets/icons/about.png')" />
+			<s:Button label="Close" click="closeApplication();" icon="@Embed('/assets/icons/close.png')" />
+		</s:TileGroup>
 	</s:VGroup>
-	
 	
 </s:View>

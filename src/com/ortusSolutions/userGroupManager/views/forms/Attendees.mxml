@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<base:BasePersonList xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:base="com.ortusSolutions.userGroupManager.views.base.*"
+					 currentState="normal">
+	
+	<base:states>
+		<s:State name="normal" />	
+		<s:State name="noData" />
+	</base:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.common.utils.ArrayUtils;
+			import com.ortusSolutions.userGroupManager.model.Attendee;
+			import com.ortusSolutions.userGroupManager.model.Meeting;
+			import com.ortusSolutions.userGroupManager.model.Person;
+			import com.ortusSolutions.userGroupManager.vo.MeetingAttendee;
+			
+			import mx.collections.ArrayCollection;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			[Bindable]
+			protected var attendees:ArrayCollection;
+			protected var meeting:Meeting;
+			
+			/* ***************************************************************************************
+			**									PUBLIC FUNCTIONS
+			*************************************************************************************** */
+			
+			[Init]
+			override public function injectionHandler():void{
+				if(people && meeting){
+					attendees = new ArrayCollection();
+					for each(var person:Person in people.source){
+						var index:int = ArrayUtils.findInArray(meeting.attendees.source, person.id, 'id');
+						var inAttendance:Boolean = (index > -1);
+						attendees.addItem( new MeetingAttendee(person, inAttendance) );
+					}
+					attendees.refresh();
+				}
+				if(attendees && attendees.filterFunction == null){
+					attendees.filterFunction = attendeeFilter;
+				}
+				// disable form if there are no members available
+				this.currentState = (people != null && people.source.length > 0) ? STATE_NORMAL : STATE_NO_DATA;
+			}// end injectionHandler function
+			
+			override public function set data(value:Object):void{
+				super.data = value;
+				if(value.hasOwnProperty('meeting')){
+					this.meeting = value.meeting as Meeting;
+				}
+			}//end data setter function
+			
+			/* ***************************************************************************************
+			**									PRIVATE FUNCTIONS
+			*************************************************************************************** */
+			
+			protected function attendeeFilter(item:Object):Boolean{
+				var matched:Boolean = false;
+				var searchTerm:String = iSearch.text.toLowerCase();
+				var person:Person = (item as MeetingAttendee).person;
+				if(searchTerm == DEFAULT_SEARCH_TEXT.toLowerCase()
+					|| person.fullName.toLowerCase().indexOf(searchTerm) >= 0
+					|| person.email.toLowerCase().indexOf(searchTerm) >= 0){
+					matched = true;
+				}
+				return matched;
+			}// end attendeeFilter function
+			
+			protected function completionHandler():void{
+				// save the updated data
+				meeting.attendees.source = [];
+				for each(var meetingAttendee:MeetingAttendee in attendees.source){
+					if(meetingAttendee.isAttending){
+						meeting.attendees.addItem( new Attendee().populate(meetingAttendee.person) );
+					}
+				}
+				navigator.popView();
+			}// end completionHandler function
+			
+			override protected function removedFromStageHandler():void{
+				// remove attachments
+				attendees.filterFunction = null;
+				attendees.refresh();
+			}// end removedFromStageHandler function
+			
+			override protected function searchHandler(event:TextOperationEvent):void{
+				var searchTerm:String = event.target.text;
+				if(searchTerm != DEFAULT_SEARCH_TEXT){
+					attendees.refresh();
+				}
+			}// end searchHandler function
+			
+		]]>
+	</fx:Script>
+	
+	<!-- action bar -->
+	<base:actionContent>
+		<s:Button id="addMemberBtn" icon="@Embed('/assets/icons/user-add.png')" click="navigator.pushView(PersonForm)" />
+	</base:actionContent>
+	
+	<s:Group includeIn="normal" left="0" right="0" top="0" bottom="0">
+		<!-- member list -->
+		<s:List dataProvider="{attendees}"
+				left="0" right="0" top="0" bottom="75"
+				itemRenderer="com.ortusSolutions.userGroupManager.views.itemRenderers.PersonSelectionRenderer" />
+		
+		<s:HGroup bottom="0" left="0" right="0" gap="0">
+			<s:Button label="canel" width="100%" bottom="0" click="navigator.popView()" />	
+			<s:Button label="done" width="100%" bottom="0" click="completionHandler()" />
+		</s:HGroup>
+	</s:Group>
+	
+	<!-- no members -->
+	<s:VGroup includeIn="noData" gap="20"
+			  top="0" bottom="0" left="0" right="0"
+			  horizontalAlign="center" verticalAlign="middle">
+		<s:Label text="You have no group members to select from." fontSize="22" styleName="accent" />
+		<s:Button icon="@Embed('/assets/icons/add.png')" label="Add Member Now" click="navigator.pushView(PersonForm)" />
+	</s:VGroup>
+	
+</base:BasePersonList>

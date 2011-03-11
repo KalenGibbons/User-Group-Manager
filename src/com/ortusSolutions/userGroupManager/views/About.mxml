@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		title="{Settings.APPLICATION_NAME}">
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.config.Settings;
+			
+			private const FONT_SIZE:int = 17;
+		]]>
+	</fx:Script>
+	
+	<!-- TODO : Use a real HTML container when possible -->	
+	<s:VGroup top="25" bottom="25" left="30" right="30" gap="30">
+		<s:Label width="100%" fontSize="{FONT_SIZE}">
+			<s:text>This application was created as a way for user group managers to track meeting attendance, presenters, and raffles. In addition, it provides a simple and efficient way of randomly selecting raffle winners.  Moreover, raffles can be weighted based on previous attendance.  This feature was the impetus of this application – as I wanted a way to reward members that commonly attend meetings over those who only show up when there’s a raffle.</s:text>
+		</s:Label>
+		<s:Label width="100%" fontSize="{FONT_SIZE}">
+			<s:text>Weighted Raffles: A weighted raffle gives members who have attended past meetings a greater chance of winning than those who have not.  A weighted raffle must be associated with a group meeting.   To create a weighted raffle you must create or edit a meeting, then add a raffle, and select the "Based on previous meeting attendance" option.  You may then enter the past number of meetings to take in account when weighting the raffle; this will be in addition to the current meeting's attendance.</s:text>
+		</s:Label>
+		<s:Label width="100%" fontSize="{FONT_SIZE}">
+			<s:text>Quick Raffle: A Quick Raffle is a fast and easy way to raffle off a prize.  Quick Raffles are not tied to a meeting, they do not record the prize awarded, and they cannot be weighted.   The Quick Raffle simply selects a random winner based on all group members, regardless of previous attendance.</s:text>
+		</s:Label>
+		<s:VGroup width="100%" gap="5">
+			<s:Label width="100%" fontSize="{FONT_SIZE}">
+				<s:text>The User Group Manager application was created by Kalen Gibbons. For question, comments, or to report a bug please email:</s:text>
+			</s:Label>
+			<s:Label width="100%" fontSize="{FONT_SIZE}">
+				<s:text>ugm@kalengibbons.com</s:text>
+			</s:Label>
+		</s:VGroup>
+		<s:VGroup width="100%" gap="5">
+			<s:Label width="100%" fontSize="{FONT_SIZE}">
+				<s:text>The images and icons used in this application come courtesy of Double-J Design:</s:text>
+			</s:Label>
+			<s:Label width="100%" fontSize="{FONT_SIZE}">
+				<s:text>http://www.webdesignerdepot.com/2009/07/200-free-exclusive-vector-icons-primo/</s:text>
+			</s:Label>
+		</s:VGroup>
+		<!--<s:TextArea width="100%" height="100%" editable="false" selectable="true" borderAlpha="0">
+			<s:content>
+			<s:p>
+				This application was created as a way for user group managers to track meeting attendance, presenters, and raffles.  
+				In addition, it provides a simple and efficient way of randomly selecting raffle winners.  Moreover, raffles can be 
+				weighted based on previous attendance.  This feature was the impetus of this application – as I wanted a way to reward 
+				members that commonly attend meetings over those who only show up when there’s a raffle.
+			</s:p>
+			<s:p>
+				<s:span fontWeight="bold" color="0xFFCC00">Weighted Raffles:</s:span>  
+				A weighted raffle gives members who have attended past meetings a greater chance of winning than those 
+				who have not.  A weighted raffle must be associated with a group meeting.   To create a weighted raffle you must create 
+				or edit a meeting, then add a raffle, and select the "Based on previous meeting attendance" option.  You may then enter 
+				the past number of meetings to take in account when weighting the raffle; this will be in addition to the current 
+				meeting's attendance.
+			</s:p>
+			<s:p>
+				<s:span fontWeight="bold" color="0xFFCC00">Quick Raffle:</s:span>  
+				A Quick Raffle is a fast and easy way to raffle off a prize.  Quick Raffles are not tied to a meeting, 
+				they do not record the prize awarded, and they cannot be weighted.   The Quick Raffle simply selects a random winner 
+				based on all group members, regardless of previous attendance.
+			</s:p>			
+			<s:p>
+				The User Group Manager application was created by Kalen Gibbons. <s:br/>
+				For question, comments, or to report a bug please email: ugm@kalengibbons.com
+			</s:p>
+			<s:p>
+				The images and icons used in this application come courtesy of Double-J Design: <s:br/>
+				<s:a href="http://www.webdesignerdepot.com/2009/07/200-free-exclusive-vector-icons-primo/">
+					http://www.webdesignerdepot.com/2009/07/200-free-exclusive-vector-icons-primo/
+				</s:a>
+			</s:p>			
+			</s:content>
+		</s:TextArea>-->
+	</s:VGroup>
+
+</s:View>

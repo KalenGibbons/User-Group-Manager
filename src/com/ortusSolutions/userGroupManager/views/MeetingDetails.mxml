@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:mx="library://ns.adobe.com/flex/mx"
+		xmlns:itemRenderers="com.ortusSolutions.userGroupManager.views.itemRenderers.*"
+		addedToStage="addedToStageHandler()" >
+	
+	<s:states>
+		<s:State name="attendeesState" />
+		<s:State name="noAttendeesState" />
+		<s:State name="presentersState" />
+		<s:State name="noPresentersState" />
+		<s:State name="rafflesState" />
+		<s:State name="noRafflesState" />
+	</s:states>
+	
+	<s:layout>
+		<s:VerticalLayout />
+	</s:layout>
+	
+	<fx:Metadata>
+		[Event(name="deleteMeeting", type="com.ortusSolutions.userGroupManager.events.MeetingEvent")]
+		[ManagedEvents("deleteMeeting")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.config.Settings;
+			import com.ortusSolutions.userGroupManager.events.MeetingEvent;
+			import com.ortusSolutions.userGroupManager.events.RequestCompleteEvent;
+			import com.ortusSolutions.userGroupManager.model.Meeting;
+			import com.ortusSolutions.userGroupManager.model.Person;
+			import com.ortusSolutions.userGroupManager.model.Raffle;
+			import com.ortusSolutions.userGroupManager.views.forms.MeetingForm;
+			import com.ortusSolutions.userGroupManager.vo.ResponseType;
+			
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			
+			import spark.events.IndexChangeEvent;
+			
+			private const STATE_RAFFLES:String = 		"rafflesState";
+			private const STATE_NO_RAFFLES:String =		"noRafflesState";
+			private const STATE_ATTENDEES:String = 		"attendeesState";
+			private const STATE_NO_ATTENDEES:String =	"noAttendeesState";
+			private const STATE_PRESENTERS:String = 	"presentersState";
+			private const STATE_NO_PRESENTERS:String =	"noPresentersState";	
+			private const RAFFLE_LABEL:String = 		"Raffles";
+			private const ATTENDEES_LABEL:String = 		"Attendees";
+			private const PRESENTER_LABEL:String =		"Presenters";
+			
+			[Bindable]
+			private var meeting:Meeting;
+			private var deleteWarning:DeleteWarning;
+			private var tabLabels:ArrayCollection = new ArrayCollection([
+														{data : STATE_ATTENDEES, label : ATTENDEES_LABEL},
+														{data : STATE_PRESENTERS, label : PRESENTER_LABEL},
+														{data : STATE_RAFFLES, label : RAFFLE_LABEL}
+													]);
+			
+			[MessageHandler (selector="deleteMeeting")]
+			public function deletionHandler(event:RequestCompleteEvent):void{
+				// if deletion was successful, go back to the previous view
+				if(event.responseType == ResponseType.RESULT_OK){
+					// add slight delay for effect
+					setTimeout( function():void{
+						navigator.popView();
+					}, Settings.SAVE_DELAY);
+				}
+			}// end deletionHandler function
+			
+			protected function addedToStageHandler():void{
+				this.dispatchEvent( new Event("configureView", true) );
+			}// end addedToStageHandler function
+			
+			override public function set data(value:Object):void{
+				meeting = value as Meeting;
+				super.data = meeting;
+				this.title = "Meeting : " + meeting.formattedDate;
+				validateState(STATE_ATTENDEES);
+			}//end data setter function
+			
+			protected function viewChangeHandler(event:IndexChangeEvent):void{
+				validateState(event.target.selectedItem.data);
+			}// end viewChangeHandler function
+			
+			protected function personSelectionHandler(event:IndexChangeEvent):void{
+				var selectedMember:Person = event.target.selectedItem;
+				navigator.pushView(PersonDetails, selectedMember);
+			}// end personelectionHandler function
+			
+			protected function raffleSelectionHandler(event:IndexChangeEvent):void{
+				var selectedRaffle:Raffle = event.target.selectedItem;
+				navigator.pushView(RaffleDetails, selectedRaffle);
+			}// end raffleSelectionHandler function
+			
+			protected function editMeetingHandler():void{
+				navigator.pushView(MeetingForm, meeting);
+			}// end editMeetingHandler function
+			
+			protected function deleteMeetingHandler():void{
+				if(deleteWarning == null){
+					deleteWarning = PopUpManager.createPopUp(this, DeleteWarning, true) as DeleteWarning;
+				}else{
+					PopUpManager.addPopUp(deleteWarning, this, true);
+				}
+				deleteWarning.targetDescription = "this meeting";
+				deleteWarning.addEventListener(DeleteWarning.CANCELLED, deleteCancelHandler);
+				deleteWarning.addEventListener(DeleteWarning.CONFIRMED, deleteConfirmHandler);
+				PopUpManager.centerPopUp(deleteWarning);
+			}// end deleteMeetingHandler function
+			
+			private function deleteCancelHandler(event:Event):void{
+				removeDeleteWarningHandlers();
+			}// end deleteCancelHandler function
+			
+			private function deleteConfirmHandler(event:Event):void{
+				removeDeleteWarningHandlers();
+				this.dispatchEvent( new MeetingEvent(MeetingEvent.DELETE, meeting, true) );
+			}// end deleteConfirmHandler function
+			
+			private function removeDeleteWarningHandlers():void{
+				if(deleteWarning){
+					deleteWarning.removeEventListener(DeleteWarning.CANCELLED, deleteCancelHandler);
+					deleteWarning.removeEventListener(DeleteWarning.CONFIRMED, deleteConfirmHandler);
+				}
+			}// end removeDeleteWarningHandlers function
+			
+			private function validateState(selectedView:String):void{
+				var state:String = "";
+				switch(selectedView){
+					case STATE_ATTENDEES:
+						state = (meeting.attendees && meeting.attendees.source.length > 0) ? STATE_ATTENDEES : STATE_NO_ATTENDEES;
+						break;
+					case STATE_PRESENTERS:
+						state = (meeting.presenters && meeting.presenters.source.length > 0) ? STATE_PRESENTERS : STATE_NO_PRESENTERS;
+						break;
+					case STATE_RAFFLES:
+						state = (meeting.raffles && meeting.raffles.source.length > 0) ? STATE_RAFFLES : STATE_NO_RAFFLES;
+						break;
+				}
+				this.currentState = state;
+			}// end validateState function
+			
+		]]>
+	</fx:Script>
+	
+	<!--action bar -->
+	<s:actionContent>
+		<s:Button id="editBtn" icon="@Embed('/assets/icons/meeting-edit.png')" click="editMeetingHandler()" />
+		<s:Button id="deleteBtn" icon="@Embed('/assets/icons/meeting-delete.png')" click="deleteMeetingHandler()" />
+	</s:actionContent>
+	
+	<!-- meeting overview -->
+	<s:HGroup width="100%"  verticalAlign="middle"
+			  paddingTop="10" paddingBottom="10" paddingLeft="25" paddingRight="25">
+		<s:Image source="@Embed('/assets/icons/meeting-lrg.png')" />
+		<mx:Spacer width="50" />
+		<s:VGroup gap="15">
+			<!-- TODO : figure out something better than maxWidth, we don't want to wrap, we want to truncate -->
+			<s:Label text="{meeting.topic}" styleName="highlight"
+					 fontSize="32" maxWidth="800"
+					 includeInLayout="{meeting.topic.length}" />
+			<s:HGroup width="100%" gap="20">
+				<s:Label text="{meeting.attendees.length} {(meeting.attendees.length!=1) ? 'attendees' : 'attendee'}" />
+				<s:Label text="-" />
+				<!-- TODO : Add method in meeting to display prentor(s) name(s) if less than 3 -->
+				<!-- TODO : raffles vs raffle, etc -->
+				<s:Label text="{meeting.presenters.length} {(meeting.presenters.length!=1) ? 'presenters' : 'presenter'}" />
+				<s:Label text="-" />
+				<!-- TODO : on all these ternary operators (throughout the app) we should be check the source not the AC) -->
+				<s:Label text="{meeting.raffles.length} {(meeting.raffles.length!=1) ? 'raffles' : 'raffle'}" />
+			</s:HGroup>
+		</s:VGroup>
+	</s:HGroup>
+	
+	<!-- meetings lists -->
+	<s:VGroup width="100%" height="100%" gap="0">
+		<s:TabBar dataProvider="{tabLabels}"
+				  width="100%" height="58"
+				  change="viewChangeHandler(event)" />
+		
+		<!-- attendee list -->
+		<s:List dataProvider="{meeting.attendees}"
+				includeIn="attendeesState"
+				width="100%" height="100%"
+				change="personSelectionHandler(event)">
+			<s:itemRenderer>
+				<fx:Component>
+					<!--<s:MobileIconItemRenderer-->
+					<itemRenderers:MobileIconItemRendererFix
+						label="{data.firstName} {data.lastName}"
+						messageField="email" messageStyleName="listMessage" />
+				</fx:Component>
+			</s:itemRenderer>
+		</s:List>
+		
+		<!-- no attendees -->
+		<s:VGroup includeIn="noAttendeesState"
+				  width="100%" height="100%"
+				  verticalAlign="middle" horizontalAlign="center">
+			<s:Label text="This meeting has no attendees." styleName="accent" />
+		</s:VGroup>
+		
+		<!-- presenter list -->
+		<s:List dataProvider="{meeting.presenters}"
+				includeIn="presentersState"
+				width="100%" height="100%"
+				change="personSelectionHandler(event)">
+			<s:itemRenderer>
+				<fx:Component>
+					<!--<s:MobileIconItemRenderer-->
+					<itemRenderers:MobileIconItemRendererFix
+						label="{data.firstName} {data.lastName}"
+						messageField="email" messageStyleName="listMessage" />
+				</fx:Component>
+			</s:itemRenderer>
+		</s:List>
+		
+		<!-- no presenters -->
+		<s:VGroup includeIn="noPresentersState"
+				  width="100%" height="100%"
+				  verticalAlign="middle" horizontalAlign="center">
+			<s:Label text="This meeting has no presenters." styleName="accent" />
+		</s:VGroup>
+		
+		<!-- raffle list -->
+		<s:List dataProvider="{meeting.raffles}"
+				includeIn="rafflesState"
+				width="100%" height="100%"
+				change="raffleSelectionHandler(event)">
+			<s:itemRenderer>
+				<fx:Component>
+					<!--<s:MobileIconItemRenderer-->
+					<itemRenderers:MobileIconItemRendererFix
+						label="{data.winner.firstName} {data.winner.lastName}"
+						messageField="prize" messageStyleName="listMessage" />
+				</fx:Component>
+			</s:itemRenderer>
+		</s:List>
+		
+		<!-- no raffles won -->
+		<s:VGroup includeIn="noRafflesState"
+				  width="100%" height="100%"
+				  verticalAlign="middle" horizontalAlign="center">
+			<s:Label text="This meeting has no raffles." styleName="accent" />
+		</s:VGroup>
+		
+	</s:VGroup>
+	
+</s:View>

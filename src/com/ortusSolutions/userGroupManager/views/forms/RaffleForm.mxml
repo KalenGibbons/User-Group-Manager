@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		title="Raffle Options"
+		currentState="normal"
+		addedToStage="addedToStageHandler()"
+		creationComplete="creationCompleteHandler()">
+	
+	<s:states>
+		<s:State name="noData" />
+		<s:State name="normal" />
+	</s:states>
+	
+	<fx:Declarations>
+		<s:Resize id="showWeightedValue" heightFrom="0" heightTo="55" />
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.model.Meeting;
+			import com.ortusSolutions.userGroupManager.model.Raffle;
+			import com.ortusSolutions.userGroupManager.views.RaffleWinnerSelector;
+			
+			import mx.collections.ArrayCollection;
+			
+			private const ALL_MEMBERS:String = 		"allMembers";
+			private const DEFAULT_WEIGHT:int =		3;
+			private const PAST_MEMBERS:String = 	"pastMembers";
+			private const MEETING_MEMBERS:String = 	"meetingMembers";
+			private const STATE_NO_DATA:String =	"noData";
+			private const STATE_NORMAL:String =		"normal";
+			
+			[Inject(id="people")]
+			public var people:ArrayCollection;
+			
+			[Inject(id="meetings")]
+			public var meetings:ArrayCollection;
+			
+			private var meeting:Meeting;
+			private var raffle:Raffle;
+			
+			private var injected:Boolean = false;
+			private var created:Boolean =	false;
+			
+			protected function addedToStageHandler():void{
+				this.dispatchEvent( new Event("configureView", true) );
+			}// end addedToStageHandler function
+			
+			protected function creationCompleteHandler():void{
+				created = true;
+				// make sure data injection has taken place
+				if(!injected) return;
+				// default to the appropriate option
+				if(this.currentState == STATE_NORMAL){
+					if(meeting.attendees && meeting.attendees.length > 0){
+						// default to the option for all meeting attendees
+						meetingOption.selected = true;
+					}else{
+						// if no attendees have been selected - default to all members
+						meetingOption.enabled = false;
+						membersOption.selected = true;
+					}
+
+					// reset the form to it's previous values
+					// TODO : reset the rest of the form
+					// TODO : store the numPastMeetings in data (I don't need to reference in data setter)
+					// TODO : if numPastMeetings, bypass the next default step
+					iPrize.text = raffle.prize;
+					
+					// set the default number of past meetings
+					var numPastMeetings:int = meetings.source.length;
+					if(meetings == null || numPastMeetings == 0){
+						weightedOption.enabled = false;
+					}else{
+						var defaultWeight:int = (numPastMeetings > DEFAULT_WEIGHT) ? DEFAULT_WEIGHT : numPastMeetings;
+						weightedCount.text = defaultWeight.toString();
+					}
+				}
+			}// end creationCompleteHandler function
+			
+			[Init]
+			public function injectionHandler():void{
+				injected = true;
+				// disable form if there are no members available
+				this.currentState = (people != null && people.source.length > 0) ? STATE_NORMAL : STATE_NO_DATA;
+				// if the view has already been created, go back and init variables
+				if(created) creationCompleteHandler();
+			}// end injectionHandler function
+			
+			override public function set data(value:Object):void{
+				super.data = value;
+				if(value.hasOwnProperty('meeting')){
+					this.meeting = value.meeting as Meeting;
+				}
+				if(value.hasOwnProperty('raffle')){
+					this.raffle = value.raffle as Raffle;
+					if(raffle.pendingSave){
+						navigator.popView();
+					}
+				}else{
+					raffle = new Raffle();
+				}
+			}//end data setter function
+			
+			protected function weightedOptionChangeHandler(event:Event):void{
+				var selection:String = event.target.selectedValue;
+				// TODO : At work, make this transition smooth
+				if(selection == PAST_MEMBERS){
+					if(!weightedCountContainer.visible){
+						showWeightedValue.play([weightedCountContainer]);
+						weightedCountContainer.visible = true;
+					}
+				}else{
+					if(weightedCountContainer.visible){
+						showWeightedValue.play([weightedCountContainer], true);
+						weightedCountContainer.visible = false;
+					}
+				}
+			}// end weightedOptionChangeHandler function
+			
+			protected function textInputFocusHandler(event:Event):void{
+				event.currentTarget.selectAll();
+			}// end textInputFocusHandler function
+			
+			private function selectRaffleWinner():void{
+				var raffleGroup:String = raffleWeight.selectedValue as String;
+				// this should never be null but this is a catch-all just in case
+				if(raffleGroup == null) return;
+				
+				// store the raffle values
+				this.raffle.prize = iPrize.text;
+
+				switch(raffleGroup){
+					case ALL_MEMBERS:
+						// TODO : make sure users have been created
+						raffle.eligibleMembers = people.source;
+						break;
+					case MEETING_MEMBERS:
+						// TODO : make sure this meeting has members
+						raffle.eligibleMembers = meeting.attendees.source;
+						
+						break;
+					case PAST_MEMBERS:
+						// TODO : validate this value being passed
+						var count:int = Number(weightedCount.text);
+						raffle.eligibleMembers = (! isNaN(count)) ? getMeetingAttendees(count) : [];
+						break;
+				}
+				
+				// save the raffle data to re-populate the form if the user comes back
+				this.data.raffle = raffle;
+				// load the winner selection form
+				navigator.pushView(RaffleWinnerSelector, {raffle : raffle, meeting : meeting});
+			}// end selectRaffleWinner function
+			
+			private function getMeetingAttendees(numMeetings:int):Array{
+				var maxMeetings:int = meetings.source.length;
+				var attendees:Array = [];
+				// get the attendees from the past n meetings
+				for(var i:int = 0; i < numMeetings; i++){
+					if(i <= maxMeetings){
+						// TOOD : make sure the current item in the loop isn't the raffle meeting (double counting)
+						attendees = attendees.concat(meetings[i].attendees.source);
+					}
+				}
+				// add members in the current meeting
+				attendees = attendees.concat(meeting.attendees.source);
+				return attendees;
+			}// end getMeetingAttendees function
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="raffleWeight" change="weightedOptionChangeHandler(event)" />
+	</fx:Declarations>
+	
+	<s:Scroller top="0" bottom="0" left="0" right="0" includeIn="normal">
+		<!-- raffle options -->
+		<s:VGroup top="0" bottom="0" left="0" right="0"
+				  paddingTop="25" paddingBottom="25"
+				  verticalAlign="middle" horizontalAlign="center">
+			
+			<s:VGroup>
+				<!-- prize -->
+				<s:VGroup>
+					<s:Label text="Prize: " styleName="highlight" />
+					<s:TextInput id="iPrize" maxChars="255" width="440" />
+				</s:VGroup>
+					
+				<!-- weight options : use a negative gap to reduce the huge margin between radio buttons -->
+				<s:VGroup gap="-15">
+					<s:RadioButton id="membersOption" group="{raffleWeight}" left="0"
+								   value="{ALL_MEMBERS}" label="All members" />
+					<s:RadioButton id="meetingOption" group="{raffleWeight}"
+								   value="{MEETING_MEMBERS}" label="This meeting's attendees only" />
+					<s:RadioButton id="weightedOption" group="{raffleWeight}"
+								   value="{PAST_MEMBERS}" label="Based on previous meeting attendance" />
+					<!-- weighted number of meetings -->
+					<s:HGroup id="weightedCountContainer"
+							  visible="false" height="0"
+							  verticalAlign="middle" paddingLeft="70">
+						<s:TextInput id="weightedCount" width="40" focusIn="textInputFocusHandler(event)" restrict="0-9" />
+						<s:Label text="past meetings" />
+					</s:HGroup>
+				</s:VGroup>
+				
+				
+				<!-- submit and canel buttons -->
+				<s:HGroup gap="15" paddingTop="25">
+					<s:Button label="Canel" click="navigator.popView();" width="211" />
+					<s:Button label="Raffle Prize" click="selectRaffleWinner();" width="211" />
+				</s:HGroup>
+			</s:VGroup>
+			
+		</s:VGroup>
+	</s:Scroller>
+
+	<!-- no members -->
+	<s:VGroup includeIn="noData" gap="20"
+			  top="0" bottom="0" left="0" right="0"
+			  horizontalAlign="center" verticalAlign="middle">
+		<s:Label text="You have no group members to select from." fontSize="22" styleName="accent" />
+		<s:Button icon="@Embed('/assets/icons/add.png')" label="Add Member Now" click="navigator.pushView(PersonForm)" />
+	</s:VGroup>
+	
+</s:View>

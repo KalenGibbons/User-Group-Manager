@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		xmlns:itemRenderers="com.ortusSolutions.userGroupManager.views.itemRenderers.*"
+		title="Raffles"
+		addedToStage="addedToStageHandler()" >
+	
+	<s:states>
+		<s:State name="normal" />
+		<s:State name="noData" />
+	</s:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.model.Raffle;
+			
+			import mx.collections.ArrayCollection;
+			
+			import spark.events.IndexChangeEvent;
+			
+			[Bindable]
+			[Inject(id="raffles")]
+			public var raffles:ArrayCollection;
+			
+			protected const STATE_NO_DATA:String =	"noData";
+			protected const STATE_NORMAL:String =	"normal";
+			
+			[Init]
+			public function injectionHandler():void{
+				this.currentState = (raffles != null && raffles.source.length > 0) ? STATE_NORMAL : STATE_NO_DATA;
+			}// end injectionHandler function
+			
+			protected function addedToStageHandler():void{
+				this.dispatchEvent( new Event("configureView", true) );
+			}// end addedToStageHandler function
+			
+			protected function raffleSelectionHandler(event:IndexChangeEvent):void{
+				var selectedRaffle:Raffle = event.target.selectedItem;
+				navigator.pushView(RaffleDetails, selectedRaffle);
+			}// end raffleSelectionHandler function
+			
+		]]>
+	</fx:Script>
+	
+	<!-- TODO : Should this view have an "add" option?  -->
+	
+	<!-- raffle list -->
+	<s:List includeIn="normal"
+			dataProvider="{raffles}"
+			width="100%" height="100%"
+			change="raffleSelectionHandler(event)">
+		<s:itemRenderer>
+			<fx:Component>
+				<!--<s:MobileIconItemRenderer-->
+				<itemRenderers:MobileIconItemRendererFix
+					label="{data.winner.firstName} {data.winner.lastName}"
+					messageField="prize" messageStyleName="listMessage" />
+			</fx:Component>
+		</s:itemRenderer>
+	</s:List>
+	
+	<!-- no raffles -->
+	<s:VGroup includeIn="noData" gap="20"
+			  top="0" bottom="0" left="0" right="0"
+			  horizontalAlign="center" verticalAlign="middle">
+		<s:Label text="There have been no raffles yet." fontSize="22" styleName="accent" />
+	</s:VGroup>
+	
+</s:View>

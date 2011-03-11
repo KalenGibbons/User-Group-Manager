@@ -1,112 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		xmlns:s="library://ns.adobe.com/flex/spark"
-		title="Members"
-		addedToStage="addedToStageHandler()"
-		removedFromStage="removedFromStageHandler()">
+<base:BasePersonList xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					 xmlns:s="library://ns.adobe.com/flex/spark"
+					 xmlns:base="com.ortusSolutions.userGroupManager.views.base.*"
+					 xmlns:itemRenderers="com.ortusSolutions.userGroupManager.views.itemRenderers.*">
+	
+	<base:states>
+		<s:State name="normal" />	
+		<s:State name="noData" />
+	</base:states>
 	
 	<fx:Script>
 		<![CDATA[
 			import com.ortusSolutions.userGroupManager.model.Person;
 			import com.ortusSolutions.userGroupManager.views.forms.PersonForm;
 			
-			import mx.collections.ArrayCollection;
-			import mx.utils.StringUtil;
-			
 			import spark.events.IndexChangeEvent;
-			import spark.events.TextOperationEvent;
-			
-			[Inject]
-			[Bindable]
-			public var people:ArrayCollection;
-			
-			private const DEFAULT_SEARCH_TEXT:String = "Search";
-			
-			// TODO : Organize functions
-			
-			[Init]
-			public function iocInitializedHandler():void{
-				if(people != null && people.filterFunction == null){
-					people.filterFunction = peopleFilter;
-				}
-				if(people != null){
-					people.refresh();
-				}
-			}// end iocInitializedHandler function
-			
-			protected function addedToStageHandler():void{
-				this.dispatchEvent( new Event("configureView", true) );
-			}// end addedToStageHandler function
-			
-			protected function removedFromStageHandler():void{
-				// remove attachments
-				people.filterFunction = null;
-			}// end removedFromStageHandler function
 			
 			private function userSelectionHandler(event:IndexChangeEvent):void{
 				var selectedPerson:Person = event.target.selectedItem;
 				navigator.pushView(PersonDetails, selectedPerson);
 			}// end userSelectionHandler function
-			
-			private function searchFocusInHandler(event:FocusEvent):void{
-				if(iSearch.text == DEFAULT_SEARCH_TEXT){
-					iSearch.text = "";
-				}
-			}// end searchFocusInHandler function
-			
-			private function searchFocusOutHandler(event:FocusEvent):void{
-				if(StringUtil.trim(iSearch.text).length == 0){
-					iSearch.text = DEFAULT_SEARCH_TEXT;
-				}
-			}// end searchFocusOutHandler function
-
-			protected function searchHandler(event:TextOperationEvent):void{
-				var searchTerm:String = event.target.text;
-				if(searchTerm != DEFAULT_SEARCH_TEXT){
-					people.refresh();
-				}
-			}// end searchHandler function
-			
-			protected function peopleFilter(item:Object):Boolean{
-				var matched:Boolean = false;
-				var searchTerm:String = iSearch.text.toLowerCase();
-				var fullName:String = item.firstName + " " + item.lastName;
-				if(searchTerm == DEFAULT_SEARCH_TEXT.toLowerCase()
-				|| fullName.toLowerCase().indexOf(searchTerm) >= 0
-				|| item.email.toLowerCase().indexOf(searchTerm) >= 0){
-					matched = true;
-				}
-				return matched;
-			}// end peopleFilter function
 
 		]]>
 	</fx:Script>
 	
-	<!-- member search -->
-	<s:titleContent>
-		<s:Label id="titleDisplay" text="{this.title}" />
-		<s:TextInput id="iSearch" text="{DEFAULT_SEARCH_TEXT}"
-					 focusIn="searchFocusInHandler(event)"
-					 focusOut="searchFocusOutHandler(event)"
-					 change="searchHandler(event)" />
-	</s:titleContent>
-	
-	<!-- add member -->
-	<s:actionContent>
-		<s:Button label="Add New" click="navigator.pushView(PersonForm)" />
-	</s:actionContent>
-	
 	<!-- member list -->
-	<s:List dataProvider="{people}"
+	<s:List includeIn="normal"
+			dataProvider="{people}"
 			width="100%" height="100%"
 			change="userSelectionHandler(event)">
 		<s:itemRenderer>
 			<fx:Component>
-				<s:MobileIconItemRenderer
+				<!--<s:MobileIconItemRenderer width="100%"-->
+				<itemRenderers:MobileIconItemRendererFix 
 					label="{data.firstName} {data.lastName}"
-					messageField="email" />
+					messageField="email" messageStyleName="listMessage" />
 			</fx:Component>
 		</s:itemRenderer>
 	</s:List>
+	
+	<!-- no members -->
+	<s:VGroup includeIn="noData" gap="20"
+			  top="0" bottom="0" left="0" right="0"
+			  horizontalAlign="center" verticalAlign="middle">
+		<s:Label text="You currently have no group members." fontSize="22" styleName="accent" />
+		<s:Button label="Add Member Now" icon="@Embed('/assets/icons/user-add.png')" click="navigator.pushView(PersonForm)" />
+	</s:VGroup>
 
-</s:View>
+</base:BasePersonList>

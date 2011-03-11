@@ -1,0 +1,47 @@
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace itemRenderers "com.ortusSolutions.userGroupManager.views.itemRenderers.*";
+
+/* Colors are based on Kuler : Hufflepuff Tunnes */
+/*
+s|MobileApplication{
+	background-color:			#262626;
+}
+
+s|Button{
+	chrome-color:				#50473E;
+	color:						#F2DEAB;
+}
+*/
+
+
+itemRenderers|MobileItemRendererFix{
+	paddingBottom: 		15;
+	paddingLeft: 		15;
+	paddingRight: 		15;
+	paddingTop: 		15;
+	verticalAlign: 		"middle";
+}
+
+itemRenderers|MobileIconItemRendererFix{
+	horizontalGap: 		15;
+	verticalGap: 		15;
+	font-weight: 		bold;
+	messageStyleName: 	"mobileIconItemRendererMessageStyle";
+}
+
+.highlight{
+	color:				#F2B84B
+}
+
+.accent{
+	color:				#F2DEAB;
+}
+
+.listMessage{
+	font-weight: 		normal;
+	color:				#F2DEAB;
+	font-size:			20;
+}
+
+
+

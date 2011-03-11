@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 addedToStage="addedToStageHandler()">
+	
+	<fx:Declarations>
+		<s:Fade id="fader" target="{this}" duration="400" alphaFrom="1" alphaTo="0" effectEnd="close()" />
+	</fx:Declarations>
+	
+	<fx:Metadata>
+		[Event(name="cancelDelete", type="flash.event.Event")]
+		[Event(name="confirmDelete", type="flash.event.Event")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.managers.PopUpManager;
+			
+			public static const CANCELLED:String = "cancelDelete";
+			public static const CONFIRMED:String = "confirmDelete";
+			
+			[Bindable]
+			private var message:String = "";
+			
+			protected function addedToStageHandler():void{
+				this.alpha = 1;
+			}// end addedToStageHandler function
+			
+			public function set targetDescription(value:String):void{
+				message = "Are you sure you want to delete " + value + "?\nThis cannot be undone!";
+			}// end targetDescription setter
+			
+			private function cancelHandler():void{
+				this.dispatchEvent( new Event(CANCELLED, true) );
+				fader.play();
+			}// end cancelHandler function
+			
+			private function confirmHandler():void{
+				this.dispatchEvent( new Event(CONFIRMED, true) );
+				close();
+			}// end confirmHandler function
+			
+			private function close():void{
+				PopUpManager.removePopUp(this);
+			}// end close function
+
+		]]>
+	</fx:Script>
+
+	
+	
+	<!-- drop shadow -->
+	<s:RectangularDropShadow distance="7" alpha=".85"
+							 blurX="7" blurY="7"
+							 top="0" bottom="0" left="0" right="0" />
+	
+	<!-- background and border -->
+	<s:Rect top="0" bottom="0" left="0" right="0"
+			radiusX="4" radiusY="4">
+		<s:stroke>
+			<s:SolidColorStroke color="0x666666" weight="2"/>
+		</s:stroke>
+		<s:fill>
+			<s:SolidColor color="0x333333" />
+		</s:fill>
+	</s:Rect>
+	
+	<!-- message text -->
+	<s:VGroup paddingLeft="30" paddingRight="30" paddingTop="25" paddingBottom="25">
+		<s:Label text="{message}" fontSize="18" color="0xF2B84B" />
+		<s:HGroup width="100%" horizontalAlign="center" gap="15" paddingTop="25">
+			<!-- TODO : style these buttons, make them short and add icons -->
+			<s:Button label="Cancel" height="40" width="180" click="cancelHandler()" />
+			<s:Button label="Confirm" height="40"  width="180" click="confirmHandler()" />
+		</s:HGroup>
+	</s:VGroup>
+	
+</s:Group>

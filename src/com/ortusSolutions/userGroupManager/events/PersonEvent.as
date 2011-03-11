@@ -7,6 +7,8 @@ package com.ortusSolutions.userGroupManager.events{
 	public class PersonEvent extends Event{
 		
 		public static const SAVE:String =	"savePerson";
+		public static const EDIT:String =	"editPerson";
+		public static const DELETE:String = "deletePerson";
 		
 		public var person:Person;
 		

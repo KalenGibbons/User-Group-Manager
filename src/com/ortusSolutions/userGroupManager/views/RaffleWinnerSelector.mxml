@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		xmlns:s="library://ns.adobe.com/flex/spark"
+		title="Raffle Winner Selection"
+		addedToStage="addedToStageHandler()"
+		removedFromStage="removedFromStageHandler(event)">
+	
+	<fx:Metadata>
+		[Event(name="saveRaffle", type="com.ortusSolutions.userGroupManager.events.RaffleEvent")]
+		[ManagedEvents("saveRaffle")]
+	</fx:Metadata>
+	
+	<!-- TODO : figure out how to reload data after first user has been added -->
+	
+	<s:states>
+		<s:State name="selecting" />
+		<s:State name="selected" />
+		<s:State name="noData" />
+	</s:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.ortusSolutions.userGroupManager.config.Settings;
+			import com.ortusSolutions.userGroupManager.events.RaffleEvent;
+			import com.ortusSolutions.userGroupManager.events.RequestCompleteEvent;
+			import com.ortusSolutions.userGroupManager.model.Meeting;
+			import com.ortusSolutions.userGroupManager.model.Person;
+			import com.ortusSolutions.userGroupManager.model.Raffle;
+			import com.ortusSolutions.userGroupManager.views.forms.PersonForm;
+			import com.ortusSolutions.userGroupManager.vo.RaffleType;
+			import com.ortusSolutions.userGroupManager.vo.ResponseType;
+			
+			private const STATE_NO_DATA:String =	"noData";
+			private const STATE_SELECTED:String =	"selected";
+			private const STATE_SELECTING:String = 	"selecting";
+			
+			[Bindable]
+			private var raffle:Raffle;
+			private var meeting:Meeting;
+			private var timer:Timer = new Timer(Settings.RAFFLE_DELAY, Settings.RAFFLE_LOOPS);
+			
+			[MessageHandler (selector="saveRaffle")]
+			public function saveCompletionHandler(event:RequestCompleteEvent):void{
+				// if save was successful, go back to previous view
+				if(event.responseType == ResponseType.RESULT_OK){
+					// add slight delay for effect
+					setTimeout( function():void{
+						navigator.popView();
+					}, Settings.SAVE_DELAY);
+				}
+			}// end saveCompletionHandler function
+			
+			override public function set data(value:Object):void{
+				super.data = value;
+				if(value.hasOwnProperty('raffle')){
+					this.raffle = value.raffle as Raffle;
+				}
+				if(value.hasOwnProperty('meeting')){
+					this.meeting = value.meeting as Meeting;	
+				}
+				if(raffle != null && raffle.eligibleMembers.length > 0){
+					// start the raffle
+					startSelection();
+				}else{
+					this.currentState = STATE_NO_DATA;
+				}
+			}//end data setter function
+			
+			protected function addedToStageHandler():void{
+				this.dispatchEvent( new Event("configureView", true) );
+			}// end addedToStageHandler function
+			
+			protected function acceptHandler():void{
+				if(raffle.raffleType == RaffleType.MEETING_RAFFLE && meeting != null){
+					meeting.raffles.source.push(raffle);
+					raffle.pendingSave = true;
+					navigator.popView();
+				}else{
+					this.dispatchEvent( new RaffleEvent(RaffleEvent.SAVE, this.raffle) );
+				}
+			}// end acceptHandler function
+			
+			private function getRandomWinner():Person{
+				var winningNumber:int = Math.floor(Math.random()*raffle.eligibleMembers.length);
+				return raffle.eligibleMembers[winningNumber] as Person;
+			}// end getRandomWinner function
+			
+			private function psuedoSelectionHandler(event:TimerEvent):void{
+				winnerLabel.text = getRandomWinner().fullName;
+			}// end psuedoSelectionHandler function
+
+			protected function removedFromStageHandler(event:Event):void{
+				removeTimerListeners();
+			}// end removedFromStageHandler function
+			
+			private function removeTimerListeners():void{
+				timer.removeEventListener(TimerEvent.TIMER, psuedoSelectionHandler);
+				timer.removeEventListener(TimerEvent.TIMER_COMPLETE, selectionHandler);
+			}// end removeTimerListeners
+			
+			private function selectionHandler(event:TimerEvent):void{
+				this.currentState = STATE_SELECTED;
+				var winner:Person = getRandomWinner();
+				raffle.winner = getRandomWinner();
+				winnerLabel.text = raffle.winner.fullName;
+				timer.reset();
+				removeTimerListeners();
+			}// end selectionHandler function
+			
+			private function startSelection():void{
+				this.currentState = STATE_SELECTING;
+				timer.addEventListener(TimerEvent.TIMER, psuedoSelectionHandler);
+				timer.addEventListener(TimerEvent.TIMER_COMPLETE, selectionHandler);
+				timer.start();
+			}// end startSelection function
+			
+
+		]]>
+	</fx:Script>
+	
+	<!-- raffle winner -->
+	<s:Group excludeFrom="noData" top="50" bottom="50" left="100" right="100">
+		<!-- TODO : make adjustments to handle landscape mode -->
+		<s:Image source="@Embed('/assets/icons/star_full.png')"
+				 includeIn="selected" showEffect="CrossFade"
+				 top="0" left="150" />
+		<s:Label text="The winner is..." top="30" left="300" />
+		<s:Label id="winnerLabel" styleName="highlight"
+				 fontSize.selecting="24" fontSize.selected="36"
+				 top.selected="75" top.selecting="150" left="300" moveEffect="Move" />
+		<s:HGroup width="100%" includeIn="selected" top="200" gap="20" horizontalAlign="center">
+			<s:Button label="Accept" width="220" click="acceptHandler()" />
+			<s:Button label="Select Again" width="220" click="startSelection()" />
+			<s:Button label="Cancel" width="220" click="navigator.popView()" />
+		</s:HGroup>
+	</s:Group>
+	
+	<!-- no members -->
+	<s:VGroup includeIn="noData" gap="20"
+			  top="0" bottom="0" left="0" right="0"
+			  horizontalAlign="center" verticalAlign="middle">
+		<!-- TODO : add warning text color - maybe a common style with fontSize -->
+		<s:Label text="You have no group members to select from." fontSize="22" styleName="accent" />
+		<!-- TODO : make this add icon looks like the other icons -->
+		<s:Button label="Add Member Now" icon="@Embed('/assets/icons/meeting-add.png')" click="navigator.pushView(PersonForm)" />
+		<!-- TODO : test adding a member and then coming back after creation -->
+	</s:VGroup>
+	
+	
+	
+</s:View>
