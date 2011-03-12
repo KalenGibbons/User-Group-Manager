@@ -1,0 +1,4 @@
+The User Group Manager application allows user group managers to track group meetings, 
+attendance, and presenters.  It also provides a simple and efficient way of randomly 
+selecting raffle winners.  Raffles can be weighted based on attendance, to favor members 
+that commonly attend meetings over those who just show up for the raffles.
