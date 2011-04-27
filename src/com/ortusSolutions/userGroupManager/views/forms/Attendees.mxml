@@ -110,7 +110,7 @@
 				itemRenderer="com.ortusSolutions.userGroupManager.views.itemRenderers.PersonSelectionRenderer" />
 		
 		<s:HGroup bottom="0" left="0" right="0" gap="0">
-			<s:Button label="canel" width="100%" bottom="0" click="navigator.popView()" />	
+			<s:Button label="cancel" width="100%" bottom="0" click="navigator.popView()" />	
 			<s:Button label="done" width="100%" bottom="0" click="completionHandler()" />
 		</s:HGroup>
 	</s:Group>
