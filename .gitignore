@@ -32,6 +32,7 @@ publish
 .idea
 bin-debug
 libs
+.settings
 
 # build script local files
 build/buildinfo.properties
