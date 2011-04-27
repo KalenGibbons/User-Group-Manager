@@ -206,9 +206,9 @@
 				</s:VGroup>
 				
 				
-				<!-- submit and canel buttons -->
+				<!-- submit and cancel buttons -->
 				<s:HGroup gap="15" paddingTop="25">
-					<s:Button label="Canel" click="navigator.popView();" width="211" />
+					<s:Button label="Cancel" click="navigator.popView();" width="211" />
 					<s:Button label="Raffle Prize" click="selectRaffleWinner();" width="211" />
 				</s:HGroup>
 			</s:VGroup>
