@@ -15,7 +15,7 @@ package com.ortusSolutions.userGroupManager.model.services{
 		
 		public function getBaseConnection():SQLConnection{
 			if(this.sqlConnection == null){
-				openConnection(File.documentsDirectory.resolvePath(this.databaseName));
+				openConnection(File.applicationStorageDirectory.resolvePath(this.databaseName));
 			}
 			return this.sqlConnection;
 		}// end getBaseConnection function
