@@ -3,6 +3,12 @@ package com.ortusSolutions.userGroupManager.model.services{
 	import flash.data.SQLConnection;
 	import flash.filesystem.File;
 	
+	/**
+	 * 
+	 * DEPRECATED CLASS - PLEASE DELETE AFTER NEXT STABLE BUILD
+	 * 
+	 */	
+	
 	public class CoreService{
 		
 		private var databaseName:String;

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <base:BasePersonList xmlns:fx="http://ns.adobe.com/mxml/2009" 
 					 xmlns:s="library://ns.adobe.com/flex/spark"
-					 xmlns:base="com.ortusSolutions.userGroupManager.views.base.*"
-					 xmlns:itemRenderers="com.ortusSolutions.userGroupManager.views.itemRenderers.*">
+					 xmlns:base="com.ortusSolutions.userGroupManager.views.base.*">
 	
 	<base:states>
 		<s:State name="normal" />	
@@ -31,8 +30,7 @@
 			change="userSelectionHandler(event)">
 		<s:itemRenderer>
 			<fx:Component>
-				<!--<s:MobileIconItemRenderer width="100%"-->
-				<itemRenderers:MobileIconItemRendererFix 
+				<s:IconItemRenderer 
 					label="{data.firstName} {data.lastName}"
 					messageField="email" messageStyleName="listMessage" />
 			</fx:Component>

@@ -39,12 +39,12 @@
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
   <buildTargets>
     <buildTarget buildTargetName="com.qnx.flexide.multiplatform.qnx.platform" extraPackagingOptions="" includeLibs="false" signBarFile="false">
+      <multiPlatformSettings enabled="true" platformID="com.qnx.flexide.multiplatform.qnx.platform" version="2"/>
       <airSettings airCertificatePath="" airTimestamp="true" version="1">
         <airExcludes>
           <pathEntry path="assets"/>
         </airExcludes>
       </airSettings>
-      <multiPlatformSettings enabled="true" platformID="com.qnx.flexide.multiplatform.qnx.platform" version="2"/>
       <actionScriptSettings version="1"/>
     </buildTarget>
   </buildTargets>

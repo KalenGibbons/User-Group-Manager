@@ -3,7 +3,6 @@
 		xmlns:s="library://ns.adobe.com/flex/spark"
 		xmlns:mx="library://ns.adobe.com/flex/mx"
 		xmlns:views="com.ortusSolutions.userGroupManager.views.*"
-		xmlns:itemRenderers="com.ortusSolutions.userGroupManager.views.itemRenderers.*"
 		addedToStage="addedToStageHandler()" >
 	
 	<s:states>
@@ -203,8 +202,7 @@
 				change="meetingSelectionHandler(event)">
 			<s:itemRenderer>
 				<fx:Component>
-					<!--<s:MobileIconItemRenderer-->
-					<itemRenderers:MobileIconItemRendererFix
+					<s:IconItemRenderer
 						labelField="formattedDate"
 						messageField="topic" messageStyleName="listMessage" />
 				</fx:Component>
@@ -225,8 +223,7 @@
 				change="raffleSelectionHandler(event)">
 			<s:itemRenderer>
 				<fx:Component>
-					<!--<s:MobileIconItemRenderer-->
-					<itemRenderers:MobileIconItemRendererFix
+					<s:IconItemRenderer
 						label="{data.winner.firstName} {data.winner.lastName}"
 						messageField="prize" messageStyleName="listMessage" />
 				</fx:Component>

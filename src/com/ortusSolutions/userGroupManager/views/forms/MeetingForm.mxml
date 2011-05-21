@@ -10,8 +10,8 @@
 	</fx:Metadata>
 	
 	<s:states>
-		<s:State name="newMeeting" />
-		<s:State name="editMeeting" />
+		<s:State name="landscape" />
+		<s:State name="portrait" />
 	</s:states>
 	
 	<fx:Script>
@@ -80,10 +80,8 @@
 				// determine if this is a new meeting or an existing meeting
 				if(meeting.id && meeting.id != 0){
 					this.title = EDIT_MEETING_TITLE + meeting.formattedDate;
-					this.currentState = "editMeeting";
 				}else{
 					this.title = NEW_MEETING_TITLE;
-					this.currentState = "newMeeting";
 				}
 				
 				super.data = meeting;
@@ -134,7 +132,20 @@
 			<s:VGroup gap="15">
 				
 				<!-- meeting date -->			
-				<s:HGroup verticalAlign="middle">
+				<s:Group>
+					
+					<!-- TODO : Find a way of binding to a single dynamic layout so the following code doesn't need to be duplicated so many times -->
+					
+					<!-- landscape layout -->
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" />
+					</s:layout>
+					
+					<!-- portrait layout -->
+					<s:layout.portrait>
+						<s:VerticalLayout/>
+					</s:layout.portrait>
+					
 					<s:Label text="Meeting Date:" width="{labelWidth}" styleName="highlight" />
 					<!-- TODO : See if we can find a better input mechanism -->
 					<s:HGroup gap="15" width="{inputWidth}" verticalAlign="bottom">
@@ -153,16 +164,36 @@
 									 maxChars="4" restrict="0-9"
 									 focusIn="yearInputFocusHandler(event)" />
 					</s:HGroup>
-				</s:HGroup>
+				</s:Group>
 				
 				<!-- Topic -->
-				<s:HGroup verticalAlign="middle">
+				<s:Group>
+					<!-- landscape layout -->
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" />
+					</s:layout>
+					
+					<!-- portrait layout -->
+					<s:layout.portrait>
+						<s:VerticalLayout/>
+					</s:layout.portrait>
+					
 					<s:Label text="Topic:" width="{labelWidth}" styleName="highlight" />
 					<s:TextArea id="iTopic" text="{meeting.topic}" maxChars="255" />
-				</s:HGroup>
+				</s:Group>
 				
 				<!-- presenters -->			
-				<s:HGroup verticalAlign="middle">
+				<s:Group>
+					<!-- landscape layout -->
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" />
+					</s:layout>
+					
+					<!-- portrait layout -->
+					<s:layout.portrait>
+						<s:VerticalLayout/>
+					</s:layout.portrait>
+					
 					<s:Label text="Presenters :" width="{labelWidth}" styleName="highlight" />
 					<s:Button label="Add Presenter"
 							  width="{inputWidth-22}" height="{buttonHeight}"
@@ -174,10 +205,20 @@
 					<s:Button icon="{editIcon}" label="Edit" height="{buttonHeight}"
 							  visible="{meeting.presenters.length > 0}" includeInLayout="{meeting.presenters.length > 0}"
 							  click="loadAdditionalForm(Presenters)" />
-				</s:HGroup>
+				</s:Group>
 				
 				<!-- attendees -->			
-				<s:HGroup verticalAlign="middle">
+				<s:Group>
+					<!-- landscape layout -->
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" />
+					</s:layout>
+					
+					<!-- portrait layout -->
+					<s:layout.portrait>
+						<s:VerticalLayout/>
+					</s:layout.portrait>
+					
 					<s:Label text="Attendees :" width="{labelWidth}" styleName="highlight" />
 					<s:Button label="Add Attendees"
 							  width="{inputWidth-22}" height="{buttonHeight}"
@@ -189,10 +230,20 @@
 					<s:Button icon="{editIcon}" label="Edit" height="{buttonHeight}"
 							  click="loadAdditionalForm(Attendees)"
 							  visible="{meeting.attendees.length > 0}" includeInLayout="{meeting.attendees.length > 0}" />
-				</s:HGroup>
+				</s:Group>
 				
 				<!-- raffles -->			
-				<s:HGroup verticalAlign="middle">
+				<s:Group>
+					<!-- landscape layout -->
+					<s:layout>
+						<s:HorizontalLayout verticalAlign="middle" />
+					</s:layout>
+					
+					<!-- portrait layout -->
+					<s:layout.portrait>
+						<s:VerticalLayout/>
+					</s:layout.portrait>
+					
 					<s:Label text="Raffles :" width="{labelWidth}" styleName="highlight" />
 					<s:Button label="Add Raffles"
 							  width="{inputWidth-22}" height="{buttonHeight}"
@@ -203,10 +254,10 @@
 					<s:Button icon="{editIcon}" label="Add" height="{buttonHeight}"
 							  click="loadAdditionalForm(RaffleForm)"
 							  visible="{meeting.raffles.length > 0}" includeInLayout="{meeting.raffles.length > 0}"/>
-				</s:HGroup>
+				</s:Group>
 	
 				<!-- Submit or cancel -->
-				<s:HGroup gap="15" paddingLeft="{labelWidth+8}" paddingTop="10">
+				<s:HGroup gap="15" paddingLeft.landscape="{labelWidth+8}" paddingTop="10">
 					<s:Button label="Cancel" click="navigator.popView()" width="211" />
 					<s:Button label="Submit" click="submitHandler()" width="211" />
 				</s:HGroup>

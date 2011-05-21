@@ -2,7 +2,6 @@
 <s:View xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		xmlns:s="library://ns.adobe.com/flex/spark"
 		xmlns:mx="library://ns.adobe.com/flex/mx"
-		xmlns:itemRenderers="com.ortusSolutions.userGroupManager.views.itemRenderers.*"
 		addedToStage="addedToStageHandler()" >
 	
 	<s:states>
@@ -187,8 +186,7 @@
 				change="personSelectionHandler(event)">
 			<s:itemRenderer>
 				<fx:Component>
-					<!--<s:MobileIconItemRenderer-->
-					<itemRenderers:MobileIconItemRendererFix
+					<s:IconItemRenderer
 						label="{data.firstName} {data.lastName}"
 						messageField="email" messageStyleName="listMessage" />
 				</fx:Component>
@@ -209,8 +207,7 @@
 				change="personSelectionHandler(event)">
 			<s:itemRenderer>
 				<fx:Component>
-					<!--<s:MobileIconItemRenderer-->
-					<itemRenderers:MobileIconItemRendererFix
+					<s:IconItemRenderer
 						label="{data.firstName} {data.lastName}"
 						messageField="email" messageStyleName="listMessage" />
 				</fx:Component>
@@ -231,8 +228,7 @@
 				change="raffleSelectionHandler(event)">
 			<s:itemRenderer>
 				<fx:Component>
-					<!--<s:MobileIconItemRenderer-->
-					<itemRenderers:MobileIconItemRendererFix
+					<s:IconItemRenderer
 						label="{data.winner.firstName} {data.winner.lastName}"
 						messageField="prize" messageStyleName="listMessage" />
 				</fx:Component>

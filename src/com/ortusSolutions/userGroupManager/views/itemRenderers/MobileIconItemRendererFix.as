@@ -38,7 +38,7 @@ package com.ortusSolutions.userGroupManager.views.itemRenderers
 	import spark.components.IItemRenderer;
 	import spark.components.Image;
 	import spark.components.Label;
-	import spark.components.supportClasses.MobileTextField;
+	import spark.components.supportClasses.StyleableTextField;
 	import spark.components.supportClasses.TextBase;
 	import spark.core.ContentCache;
 	import spark.core.IContentLoader;
@@ -644,7 +644,7 @@ package com.ortusSolutions.userGroupManager.views.itemRenderers
 		/**
 		 *  @private
 		 */
-		private var messageDisplay:MobileTextField;
+		private var messageDisplay:StyleableTextField;
 		
 		/**
 		 *  @private
@@ -871,7 +871,7 @@ package com.ortusSolutions.userGroupManager.views.itemRenderers
 					// get styles for this text component
 					
 					// need to create it
-					messageDisplay = MobileTextField(createInFontContext(MobileTextField));
+					messageDisplay = StyleableTextField(createInFontContext(StyleableTextField));
 					messageDisplay.getStyleFunction = messageGetStyleFunction;
 					messageDisplay.editable = false;
 					messageDisplay.selectable = false;
@@ -1014,7 +1014,7 @@ package com.ortusSolutions.userGroupManager.views.itemRenderers
 		private function createLabelDisplay():void
 		{
 			// need to create it
-			labelDisplay = MobileTextFieldFix(createInFontContext(MobileTextFieldFix));
+			labelDisplay = StyleableTextFieldFix(createInFontContext(StyleableTextFieldFix));
 			labelDisplay.styleProvider = this;
 			labelDisplay.editable = false;
 			labelDisplay.selectable = false;
@@ -1333,7 +1333,7 @@ package com.ortusSolutions.userGroupManager.views.itemRenderers
 		/**
 		 *  @private 
 		 *  Function we pass in to message for it to grab the styles and push 
-		 *  them in to the TextFormat object used by that MobileTextField.
+		 *  them in to the TextFormat object used by that StyleableTextField.
 		 */
 		private function messageGetStyleFunction(styleProp:String):*
 		{

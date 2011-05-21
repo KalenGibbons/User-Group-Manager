@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<itemRenderers:MobileIconItemRendererFix xmlns:fx="http://ns.adobe.com/mxml/2009" 
-										 xmlns:s="library://ns.adobe.com/flex/spark"
-										 xmlns:itemRenderers="com.ortusSolutions.userGroupManager.views.itemRenderers.*"
-										 labelFunction="getLabel"
-										 messageFunction="getMessage" messageStyleName="listMessage"
-										 click="clickHandler(event)">
+<s:IconItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark"
+					labelFunction="getLabel"
+					messageFunction="getMessage" messageStyleName="listMessage"
+					click="clickHandler(event)">
 	<fx:Script>
 		<![CDATA[
 			import com.ortusSolutions.userGroupManager.vo.MeetingAttendee;
@@ -28,9 +27,9 @@
 			
 			private function validateIcon():void{
 				if(meetingAttendee.isAttending){
-					this.decoratorClass = checkmark;
+					this.decorator = checkmark;
 				}else{
-					this.decoratorClass = null;
+					this.decorator = null;
 				}
 			}// end validateIcon function
 			
@@ -45,5 +44,4 @@
 		]]>
 	</fx:Script>
 	
-<!--</s:MobileIconItemRenderer>-->
-</itemRenderers:MobileIconItemRendererFix>
+</s:IconItemRenderer>

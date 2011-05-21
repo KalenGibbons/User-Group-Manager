@@ -8,11 +8,13 @@ package com.ortusSolutions.userGroupManager.config{
 	import com.ortusSolutions.userGroupManager.model.dataAccess.PresenterDAO;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.RaffleDAO;
 	import com.ortusSolutions.userGroupManager.model.services.AttendeeService;
+	import com.ortusSolutions.userGroupManager.model.services.ConnectorService;
 	import com.ortusSolutions.userGroupManager.model.services.CoreService;
 	import com.ortusSolutions.userGroupManager.model.services.MeetingService;
 	import com.ortusSolutions.userGroupManager.model.services.PersonService;
 	import com.ortusSolutions.userGroupManager.model.services.PresenterService;
 	import com.ortusSolutions.userGroupManager.model.services.RaffleService;
+	import com.ortusSolutions.userGroupManager.model.services.SyncService;
 	
 	import flash.data.SQLConnection;
 	
@@ -27,6 +29,7 @@ package com.ortusSolutions.userGroupManager.config{
 		
 		// model - services
 		public var coreService:CoreService;
+		public var syncService:SyncService;
 		public var personService:PersonService;
 		public var meetingService:MeetingService;
 		public var attendeeService:AttendeeService;
@@ -48,13 +51,12 @@ package com.ortusSolutions.userGroupManager.config{
 		// controller
 		public var coreController:CoreController;
 
-		// other
+		// persistance
 		public var dbConnection:SQLConnection;
 		
 		
 		public function CoreConfig(){
-			coreService = new CoreService(databaseName);
-			dbConnection = coreService.getBaseConnection();
+			dbConnection = ConnectorService.createDatabaseConnection(databaseName);
 			
 			// model - data access
 			personDAO =		 	new PersonDAO();

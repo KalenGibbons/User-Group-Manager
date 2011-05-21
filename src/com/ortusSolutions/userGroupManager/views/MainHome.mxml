@@ -10,12 +10,22 @@
 		[ManagedEvents("preloadAll,intializeModel")]
 	</fx:Metadata>
 	
+	<s:states>
+		<s:State name="landscape" />
+		<s:State name="portrait" />
+	</s:states>
+	
+	<!-- TODO : add menu support 
+	<s:viewMenuItems>
+		<s:ViewMenuItem label="Delete" />
+		<s:ViewMenuItem label="Add" />
+	</s:viewMenuItems>-->
+	
 	<fx:Script>
 		<![CDATA[
 			import com.ortusSolutions.userGroupManager.config.Settings;
 			import com.ortusSolutions.userGroupManager.events.ModelEvent;
 			import com.ortusSolutions.userGroupManager.model.Raffle;
-			import com.ortusSolutions.userGroupManager.model.dataAccess.PersonDAO;
 			import com.ortusSolutions.userGroupManager.vo.RaffleType;
 			
 			import mx.collections.ArrayCollection;
@@ -48,7 +58,7 @@
 	
 	<!-- Grid for main application icons -->
 	<s:VGroup top="0" bottom="0" left="0" right="0" verticalAlign="middle" horizontalAlign="center">
-		<s:TileGroup id="menu" requestedColumnCount="3"
+		<s:TileGroup id="menu" requestedColumnCount.landscape="3" requestedColumnCount.portrait="2"
 					 verticalGap="120" horizontalGap="80">
 			<s:Button label="Meetings" click="navigator.pushView(MeetingList);" icon="@Embed('/assets/icons/meeting-sm.png')" />
 			<s:Button label="Members" click="navigator.pushView(PersonList);" icon="@Embed('/assets/icons/user-sm.png')" />
