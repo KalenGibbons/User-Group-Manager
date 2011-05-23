@@ -4,9 +4,13 @@ package com.ortusSolutions.userGroupManager.model{
 	
 	import mx.formatters.DateFormatter;
 	
+	[Bindable]
+	[RemoteClass(alias="model.beans.Meeting")]
+	[Entity]
 	public class Person extends BaseVO{
 		
 		// database fields
+		[Id]
 		public var id:int;
 		public var firstName:String = "";
 		public var lastName:String = "";

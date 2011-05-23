@@ -5,11 +5,15 @@ package com.ortusSolutions.userGroupManager.model{
 	
 	import mx.formatters.DateFormatter;
 	
+	[Bindable]
+	[RemoteClass(alias="model.beans.Raffle")]
+	[Entity]
 	public class Raffle extends BaseVO{
 		
 		// database fields
-		public var date:Date;
+		[Id]
 		public var id:int;
+		public var date:Date;
 		public var raffleType:int = RaffleType.MEETING_RAFFLE;
 		public var winner:Person;
 		// custom fields

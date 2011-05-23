@@ -1,11 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
 <qnx>
-  <initialWindow>
-    <systemChrome>none</systemChrome>
-    <transparent>false</transparent>
-  </initialWindow>
-  <publisher>Kalen Gibbons</publisher>
-  <category>core.all</category>
-  <icon>
-  	<image>blackberry-tablet-icon.png</image>
-  </icon>
+   <initialWindow>
+      <systemChrome>none</systemChrome>
+      <transparent>false</transparent>
+   </initialWindow>
+
+   <publisher>Kalen Gibbons</publisher>
+   <category>core.all</category>
+
+   <icon>
+      <image>blackberry-tablet-icon.png</image>
+   </icon>
+
+   <permission>access_internet</permission>
 </qnx>

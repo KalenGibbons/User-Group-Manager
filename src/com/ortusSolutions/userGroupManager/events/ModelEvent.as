@@ -9,6 +9,9 @@ package com.ortusSolutions.userGroupManager.events{
 		public static const LOAD_MEETINGS:String = 	"loadMeetings";
 		public static const LOAD_RAFFLES:String = 	"loadRaffles";
 		
+		public static const FETCH_DATA:String = 	"fetchData";
+		public static const SYNC_DATA:String =		"syncData";
+		
 		public function ModelEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false){
 			super(type, bubbles, cancelable);
 		}// end constructor

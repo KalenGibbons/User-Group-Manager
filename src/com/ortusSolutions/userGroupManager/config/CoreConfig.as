@@ -1,7 +1,10 @@
 package com.ortusSolutions.userGroupManager.config{
 	
+	import coldfusion.air.SessionToken;
+	import coldfusion.air.SyncManager;
+	
+	import com.ortusSolutions.userGroupManager.commands.FetchCommand;
 	import com.ortusSolutions.userGroupManager.control.CoreController;
-	import com.ortusSolutions.userGroupManager.model.Person;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.AttendeeDAO;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.MeetingDAO;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.PersonDAO;
@@ -14,9 +17,9 @@ package com.ortusSolutions.userGroupManager.config{
 	import com.ortusSolutions.userGroupManager.model.services.PersonService;
 	import com.ortusSolutions.userGroupManager.model.services.PresenterService;
 	import com.ortusSolutions.userGroupManager.model.services.RaffleService;
-	import com.ortusSolutions.userGroupManager.model.services.SyncService;
 	
 	import flash.data.SQLConnection;
+	import flash.filesystem.File;
 	
 	import mx.collections.ArrayCollection;
 	
@@ -29,7 +32,6 @@ package com.ortusSolutions.userGroupManager.config{
 		
 		// model - services
 		public var coreService:CoreService;
-		public var syncService:SyncService;
 		public var personService:PersonService;
 		public var meetingService:MeetingService;
 		public var attendeeService:AttendeeService;
@@ -48,32 +50,33 @@ package com.ortusSolutions.userGroupManager.config{
 		public var meetings:ArrayCollection =		new ArrayCollection();
 		public var raffles:ArrayCollection =		new ArrayCollection();
 		
+		// commands
+		public var fetchCommand:FetchCommand =		new FetchCommand();
+		
 		// controller
 		public var coreController:CoreController;
-
-		// persistance
-		public var dbConnection:SQLConnection;
-		
 		
 		public function CoreConfig(){
-			dbConnection = ConnectorService.createDatabaseConnection(databaseName);
+			// persistance
+			ConnectorService.createDatabaseConnection(databaseName);
+			ConnectorService.createSyncConnection(Settings.CF_PORT, Settings.CF_SERVER, Settings.CF_SYNC_CFC);
 			
 			// model - data access
-			personDAO =		 	new PersonDAO();
-			meetingDAO = 		new MeetingDAO();
-			attendeeDAO = 		new AttendeeDAO();
-			presenterDAO = 		new PresenterDAO();
-			raffleDAO = 		new RaffleDAO();
+			personDAO =		 		new PersonDAO();
+			meetingDAO = 			new MeetingDAO();
+			attendeeDAO = 			new AttendeeDAO();
+			presenterDAO = 			new PresenterDAO();
+			raffleDAO = 			new RaffleDAO();
 			
 			// model - services
-			personService = 	new PersonService();
-			meetingService =	new MeetingService();
-			attendeeService =	new AttendeeService();
-			presenterService = 	new PresenterService();
-			raffleService =		new RaffleService();
+			personService = 		new PersonService();
+			meetingService =		new MeetingService();
+			attendeeService =		new AttendeeService();
+			presenterService = 		new PresenterService();
+			raffleService =			new RaffleService();
 			
 			// controller
-			coreController = 	new CoreController();
+			coreController = 		new CoreController();
 		}// end constructor
 		
 	}// end CoreConfig class
