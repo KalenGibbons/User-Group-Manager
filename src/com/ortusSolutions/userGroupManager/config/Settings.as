@@ -4,7 +4,8 @@ package com.ortusSolutions.userGroupManager.config{
 		
 		public static const APPLICATION_NAME:String = 				"User Group Manager";
 		public static const CF_PORT:int = 							8500;
-		public static const CF_SERVER:String = 						"dev.usergroupmanager.com";
+		public static const CF_SESSION_ID:int =						646465;
+		public static const CF_SERVER:String = 						"dev.usergroupmanager.org";
 		public static const CF_SYNC_CFC:String = 					"model.managers.SyncManager";
 		public static const DATABASE_NAME:String = 					"UserGroupManager.db";
 		public static const DATE_FORMAT:String = 					"MM/DD/YYYY";

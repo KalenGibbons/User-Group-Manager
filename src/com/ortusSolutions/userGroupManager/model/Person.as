@@ -5,12 +5,14 @@ package com.ortusSolutions.userGroupManager.model{
 	import mx.formatters.DateFormatter;
 	
 	[Bindable]
-	[RemoteClass(alias="model.beans.Meeting")]
+	[RemoteClass(alias="model.beans.Person")]
 	[Entity]
+	[Table(name="people")]
 	public class Person extends BaseVO{
 		
 		// database fields
 		[Id]
+		[GeneratedValue(strategy="INCREMENT")]
 		public var id:int;
 		public var firstName:String = "";
 		public var lastName:String = "";
@@ -25,14 +27,19 @@ package com.ortusSolutions.userGroupManager.model{
 		
 		public function Person(){
 			super();
+			// set created date
+			createdDate = new Date();
+			// create date formatter instance
 			dateFormatter = new DateFormatter();
 			dateFormatter.formatString = Settings.DATE_FORMAT;
 		}// end constructor
 		
+		[Transient]
 		public function get memberSince():String{
 			return dateFormatter.format(this.createdDate);
 		}// end memberSince getter
 		
+		[Transient]
 		public function get fullName():String{
 			return this.firstName + ' ' + this.lastName;
 		}// end fullName getter

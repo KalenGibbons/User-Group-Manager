@@ -4,6 +4,7 @@ package com.ortusSolutions.userGroupManager.config{
 	import coldfusion.air.SyncManager;
 	
 	import com.ortusSolutions.userGroupManager.commands.FetchCommand;
+	import com.ortusSolutions.userGroupManager.commands.OpenSyncSessionCommand;
 	import com.ortusSolutions.userGroupManager.control.CoreController;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.AttendeeDAO;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.MeetingDAO;
@@ -51,15 +52,23 @@ package com.ortusSolutions.userGroupManager.config{
 		public var raffles:ArrayCollection =		new ArrayCollection();
 		
 		// commands
-		public var fetchCommand:FetchCommand =		new FetchCommand();
+		public var openSyncCommand:OpenSyncSessionCommand = new OpenSyncSessionCommand(Settings.CF_SESSION_ID);
+		public var fetchCommand:FetchCommand =				new FetchCommand();
 		
 		// controller
 		public var coreController:CoreController;
+		// TODO : remove this and CoreService
+		public var dbConnection:SQLConnection;
 		
 		public function CoreConfig(){
 			// persistance
 			ConnectorService.createDatabaseConnection(databaseName);
-			ConnectorService.createSyncConnection(Settings.CF_PORT, Settings.CF_SERVER, Settings.CF_SYNC_CFC);
+			ConnectorService.createSyncConnection(Settings.CF_SERVER, Settings.CF_SYNC_CFC);
+			
+			// TODO : remove the following code (old connection method)
+			// TODO : Also remove DAOs
+			coreService = new CoreService(databaseName);
+			dbConnection = coreService.getBaseConnection();
 			
 			// model - data access
 			personDAO =		 		new PersonDAO();

@@ -1,5 +1,9 @@
 package com.ortusSolutions.userGroupManager.model.services{
 	
+	import coldfusion.air.SessionToken;
+	import coldfusion.air.events.SessionFaultEvent;
+	import coldfusion.air.events.SessionResultEvent;
+	
 	import com.ortusSolutions.userGroupManager.events.ModelEvent;
 	import com.ortusSolutions.userGroupManager.events.RaffleEvent;
 	import com.ortusSolutions.userGroupManager.events.RequestCompleteEvent;
@@ -11,6 +15,7 @@ package com.ortusSolutions.userGroupManager.model.services{
 	import flash.data.SQLConnection;
 	
 	import mx.collections.ArrayCollection;
+	import mx.rpc.Responder;
 	
 	[Event(name="loadRaffles", 	type="com.ortusSolutions.userGroupManager.events.RequestCompleteEvent")]
 	[Event(name="saveRaffle", 	type="com.ortusSolutions.userGroupManager.events.RequestCompleteEvent")]
@@ -40,12 +45,16 @@ package com.ortusSolutions.userGroupManager.model.services{
 		**									PUBLIC FUNCTIONS
 		*************************************************************************************** */
 		
-		[Init]
+		/*[Init]
 		public function initializeHandler():void{
 			raffleDAO.createTables();
-		}// end initializeHandler function
+		}// end initializeHandler function*/
 		
 		public function loadRaffles():void{
+			var loadToken:SessionToken = ConnectorService.syncSession.loadAll(Raffle);
+			loadToken.addResponder( new Responder(loadRafflesHandler, loadRafflesFaultHandler) );
+			
+			/*
 			try{
 				// clear out any old records
 				raffles.source = [];
@@ -62,9 +71,22 @@ package com.ortusSolutions.userGroupManager.model.services{
 			}catch(error:Error){
 				messageDispatcher( new RequestCompleteEvent(ModelEvent.LOAD_RAFFLES, ResponseType.ERROR_OCCURRED, error) );
 				return;
-			}
+			}*/
 		}// end loadRaffles function
 		
+		protected function loadRafflesHandler(event:SessionResultEvent):void{
+			raffles.source = (event.result as ArrayCollection).source;
+			// refresh the arrayCollection
+			raffles.refresh();
+			// announce the change
+			messageDispatcher( new RequestCompleteEvent(ModelEvent.LOAD_MEETINGS, ResponseType.RESULT_OK) );
+		}// end loadRafflesHandler function
+		
+		protected function loadRafflesFaultHandler(event:SessionFaultEvent):void{
+			messageDispatcher( new RequestCompleteEvent(ModelEvent.LOAD_RAFFLES, ResponseType.ERROR_OCCURRED, event.error) );
+		}// end loadRafflesFaultHandler function
+		
+		/*
 		public function getRafflesByMeeting(meeting:int):Array{
 			var raffles:Array = [];
 			var raffleRecords:Array = raffleDAO.getRafflesByMeeting(meeting);
@@ -73,6 +95,7 @@ package com.ortusSolutions.userGroupManager.model.services{
 			}
 			return raffles;
 		}// end getRafflesByMeeting function
+		*/
 		
 		public function getRafflesByUser(user:int):Array{
 			var raffles:Array = [];
@@ -83,6 +106,7 @@ package com.ortusSolutions.userGroupManager.model.services{
 			return raffles;
 		}// end getRafflesByUser function	
 		
+		/*
 		public function getRaffleMeeting(raffle:Raffle):Meeting{
 			var meetingID:int = raffleDAO.getRaffleMeetingID(raffle);
 			var meeting:Meeting;
@@ -91,8 +115,12 @@ package com.ortusSolutions.userGroupManager.model.services{
 			}
 			return meeting;
 		}// end getRaffleMeeting function
+		*/
 		
 		public function saveRaffle(raffle:Raffle):void{
+			var saveToken:SessionToken = ConnectorService.syncSession.save(raffle);
+			saveToken.addResponder( new Responder(saveHandler, saveFaultHandler) );
+			/*
 			var sqlConnection:SQLConnection = raffleDAO.sqlConnection;
 			sqlConnection.begin();
 			try{
@@ -111,8 +139,24 @@ package com.ortusSolutions.userGroupManager.model.services{
 			messageDispatcher( new RequestCompleteEvent(RaffleEvent.SAVE, ResponseType.RESULT_OK, raffle) );
 			// reload all raffles
 			messageDispatcher( new ModelEvent(ModelEvent.LOAD_RAFFLES) );
+			*/
 		}// end saveRaffle function
 		
+		protected function saveHandler(event:SessionResultEvent):void{
+			// announce that the save was completed successfully
+			// TODO : Figure out new event
+			//messageDispatcher( new RequestCompleteEvent(RaffleEvent.SAVE, ResponseType.RESULT_OK, raffle) );
+			// reload all raffles
+			messageDispatcher( new ModelEvent(ModelEvent.LOAD_RAFFLES) );
+		}// end saveHandler function
+		
+		protected function saveFaultHandler(event:SessionFaultEvent):void{
+			trace('asdf');
+			// TODO : Figure out event to dispatch
+			//messageDispatcher( new RequestCompleteEvent(RaffleEvent.SAVE, ResponseType.ERROR_OCCURRED, error) );
+		}// end saveFaultHandler function
+		
+		/*
 		public function saveMeetingRaffles(raffles:Array, meetingID:int):void{
 			// save raffles
 			for each(var raffle:Raffle in raffles){
@@ -123,8 +167,13 @@ package com.ortusSolutions.userGroupManager.model.services{
 				}
 			}
 		}// end saveMeetingRaffle function
+		*/
 		
 		public function deleteRaffle(raffle:Raffle):void{
+			// TODO : Figure out the cascading
+			var deleteToken:SessionToken = ConnectorService.syncSession.remove(raffle);
+			deleteToken.addResponder( new Responder(deleteHandler, deleteFaultHandler) );
+			/*
 			try{
 				raffleDAO.deleteRaffle(raffle);
 			}catch(error:Error){
@@ -136,7 +185,21 @@ package com.ortusSolutions.userGroupManager.model.services{
 			messageDispatcher( new RequestCompleteEvent(RaffleEvent.DELETE, ResponseType.RESULT_OK, raffle) );
 			// reload all the raffle data
 			messageDispatcher( new ModelEvent(ModelEvent.LOAD_RAFFLES) )
+			*/
 		}// end deleteRaffle function
+		
+		protected function deleteHandler(event:SessionResultEvent):void{
+			// announce that the save was completed successfully
+			// TODO : determine if we need to include the raffle in the event
+			//messageDispatcher( new RequestCompleteEvent(RaffleEvent.DELETE, ResponseType.RESULT_OK, raffle) );
+			// reload all the raffle data
+			messageDispatcher( new ModelEvent(ModelEvent.LOAD_RAFFLES) );
+		}// end deleteHandler function
+		
+		protected function deleteFaultHandler(event:SessionFaultEvent):void{
+			// dispatch error message
+			messageDispatcher( new RequestCompleteEvent(RaffleEvent.DELETE, ResponseType.ERROR_OCCURRED, event.error) );
+		}// end deleteFaultHandler function
 		
 		protected function processRaffle(value:Object):Raffle{
 			// hand populate the raffle

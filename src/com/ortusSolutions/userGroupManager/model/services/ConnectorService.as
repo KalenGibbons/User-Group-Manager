@@ -1,5 +1,6 @@
 package com.ortusSolutions.userGroupManager.model.services{
 
+	import coldfusion.air.Session;
 	import coldfusion.air.SessionToken;
 	import coldfusion.air.SyncManager;
 	
@@ -8,10 +9,11 @@ package com.ortusSolutions.userGroupManager.model.services{
 	
 	public class ConnectorService{
 		
+		public static var syncSession:Session
+		
 		private static var _databaseConnection:SQLConnection;
 		private static var _databaseFile:File;
 		private static var _syncManager:SyncManager;
-		private static var _syncSession:SessionToken;
 		
 		public static function createDatabaseConnection(databaseName:String):void{
 			_databaseFile = 			File.applicationStorageDirectory.resolvePath(databaseName);
@@ -20,13 +22,14 @@ package com.ortusSolutions.userGroupManager.model.services{
 			_databaseConnection.open(_databaseFile);
 		}// end createDatabaseConnection function
 		
-		public static function createSyncConnection(cfPort:int, cfServer:String, syncCFC:String, destination:String="ColdFusion", sessionId:int=646464):void{
+		public static function createSyncConnection(cfServer:String, syncCFC:String, destination:String="ColdFusion", cfPort:int=-1, sessionId:int=646464):void{
 			_syncManager = 				new SyncManager();
-			_syncManager.cfPort = 		cfPort;
 			_syncManager.cfServer = 	cfServer;
 			_syncManager.syncCFC = 		syncCFC;
 			_syncManager.destination = 	destination;
-			_syncSession = 				_syncManager.openSession(_databaseFile, sessionId);
+			if(cfPort != -1)
+				_syncManager.cfPort = 		cfPort;
+			//_syncSession = 				_syncManager.openSession(_databaseFile, sessionId);
 		}// end createSyncConnection function
 		
 		/* ***************************************************************************************
@@ -44,10 +47,6 @@ package com.ortusSolutions.userGroupManager.model.services{
 		public static function get syncManager():SyncManager{
 			return _syncManager;
 		}// end syncManager getter function
-		
-		public static function get syncSession():SessionToken{
-			return _syncSession;
-		}// end syncSession getter function
 		
 	}// end ConnectorService class
 	

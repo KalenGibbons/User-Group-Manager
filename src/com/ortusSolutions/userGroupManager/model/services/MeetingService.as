@@ -1,5 +1,9 @@
 package com.ortusSolutions.userGroupManager.model.services{
 	
+	import coldfusion.air.SessionToken;
+	import coldfusion.air.events.SessionFaultEvent;
+	import coldfusion.air.events.SessionResultEvent;
+	
 	import com.ortusSolutions.userGroupManager.events.MeetingEvent;
 	import com.ortusSolutions.userGroupManager.events.ModelEvent;
 	import com.ortusSolutions.userGroupManager.events.RequestCompleteEvent;
@@ -16,6 +20,7 @@ package com.ortusSolutions.userGroupManager.model.services{
 	import flash.data.SQLConnection;
 	
 	import mx.collections.ArrayCollection;
+	import mx.rpc.Responder;
 	
 	[Event(name="loadMeetings", type="com.ortusSolutions.userGroupManager.events.RequestCompleteEvent")]
 	[Event(name="saveMeeting", 	type="com.ortusSolutions.userGroupManager.events.RequestCompleteEvent")]
@@ -48,13 +53,17 @@ package com.ortusSolutions.userGroupManager.model.services{
 		**									PUBLIC FUNCTIONS
 		*************************************************************************************** */
 		
-		[Init]
+		/*[Init]
 		public function initializeHandler():void{
 			meetingDAO.createTables();
-		}// end initializeHandler function
+		}// end initializeHandler function*/
 		
+		// TODO : Do we still need this extraneous parameter
 		public function loadMeetings(loadExtraneousData:Boolean=true):void{
-			try{
+			var loadToken:SessionToken = ConnectorService.syncSession.loadAll(Meeting);
+			loadToken.addResponder( new Responder(loadMeetingsHandler, loadMeetingsFaultHandler) );
+			
+			/*try{
 				// clear out any old records
 				meetings.source = [];
 				// load all meeting records
@@ -76,15 +85,27 @@ package com.ortusSolutions.userGroupManager.model.services{
 			}catch(error:Error){
 				messageDispatcher( new RequestCompleteEvent(ModelEvent.LOAD_MEETINGS, ResponseType.ERROR_OCCURRED, error) );
 				return;
-			}
+			}*/
 		}// end loadMeetings function
+		
+		protected function loadMeetingsHandler(event:SessionResultEvent):void{
+			meetings.source = (event.result as ArrayCollection).source;
+			// refresh the arrayCollection
+			meetings.refresh();
+			// announce the change
+			messageDispatcher( new RequestCompleteEvent(ModelEvent.LOAD_MEETINGS, ResponseType.RESULT_OK) );
+		}// end loadMeetingsHandler function
+		
+		protected function loadMeetingsFaultHandler(event:SessionFaultEvent):void{
+			messageDispatcher( new RequestCompleteEvent(ModelEvent.LOAD_MEETINGS, ResponseType.ERROR_OCCURRED, event.error) );
+		}// end loadMeetingsFaultHandler function
 		
 		public function getMeetingsByUser(user:int):Array{
 			var meetings:Array = [];
 			var meetingRecords:Array = meetingDAO.getMeetingsByUser(user);
 			for(var i:int=0; i < meetingRecords.length; i++){
 				var meeting:Meeting = new Meeting().populate(meetingRecords[i]) as Meeting;
-				loadMeetingRelations(meeting);
+				//loadMeetingRelations(meeting);
 				meetings.push(meeting);
 			}
 			return meetings;
@@ -100,13 +121,16 @@ package com.ortusSolutions.userGroupManager.model.services{
 			var meetingRecords:Array = meetingDAO.getRecentMeetings(count);
 			for(var i:int=0; i < meetingRecords.length; i++){
 				var meeting:Meeting = new Meeting().populate(meetingRecords[i]) as Meeting;
-				loadMeetingRelations(meeting);
+				//loadMeetingRelations(meeting);
 				meetings.push(meeting);
 			}
 			return meetings;
 		}// end getRecentMeetings function
 		
 		public function saveMeeting(meeting:Meeting):void{
+			var saveToken:SessionToken = ConnectorService.syncSession.save(meeting);
+			saveToken.addResponder( new Responder(saveHandler, saveFaultHandler) );
+			/*
 			var sqlConnection:SQLConnection = meetingDAO.sqlConnection;
 			var eventType:String;
 			// begin transaction
@@ -142,9 +166,29 @@ package com.ortusSolutions.userGroupManager.model.services{
 			// reload all the people and raffle
 			messageDispatcher( new ModelEvent(ModelEvent.LOAD_RAFFLES) );
 			messageDispatcher( new ModelEvent(ModelEvent.LOAD_MEETINGS) );
+			*/
 		}// end saveMeeting function
 		
+		protected function saveHandler(event:SessionResultEvent):void{
+			// announce that the save was completed successfully
+			// TODO : figure out
+			//messageDispatcher( new RequestCompleteEvent(eventType, ResponseType.RESULT_OK, meeting) );
+			// reload all the people and raffle
+			messageDispatcher( new ModelEvent(ModelEvent.LOAD_RAFFLES) );
+			messageDispatcher( new ModelEvent(ModelEvent.LOAD_MEETINGS) );
+		}// end saveHandler function
+		
+		protected function saveFaultHandler(event:SessionFaultEvent):void{
+			trace('adsf');
+			// TODO : figure out what event to dispatch
+			//messageDispatcher( new RequestCompleteEvent(eventType, ResponseType.ERROR_OCCURRED, event.error) );
+		}// end saveFaultHandler function
+		
 		public function deleteMeeting(meeting:Meeting):void{
+			// TODO : figure out the cascading
+			var deleteToken:SessionToken = ConnectorService.syncSession.remove(meeting);
+			deleteToken.addResponder( new Responder(deleteHandler, deleteFaultHandler) );
+			/*
 			try{
 				meetingDAO.deleteMeeting(meeting);
 			}catch(error:Error){
@@ -155,9 +199,24 @@ package com.ortusSolutions.userGroupManager.model.services{
 			// announce that the save was completed successfully
 			messageDispatcher( new RequestCompleteEvent(MeetingEvent.DELETE, ResponseType.RESULT_OK, meeting) );
 			// reload all the meeting data
-			messageDispatcher( new ModelEvent(ModelEvent.LOAD_MEETINGS) )
+			messageDispatcher( new ModelEvent(ModelEvent.LOAD_MEETINGS) );
+			*/
 		}// end deleteMeeting function
 		
+		protected function deleteHandler(event:SessionResultEvent):void{
+			// announce that the save was completed successfully
+			// TODO : figure out if we need to include the meeting in the event
+			//messageDispatcher( new RequestCompleteEvent(MeetingEvent.DELETE, ResponseType.RESULT_OK, meeting) );
+			// reload all the meeting data
+			messageDispatcher( new ModelEvent(ModelEvent.LOAD_MEETINGS) );
+		}// end deleteHandler function
+		
+		protected function deleteFaultHandler(event:SessionFaultEvent):void{
+			// dispatch error message
+			messageDispatcher( new RequestCompleteEvent(MeetingEvent.DELETE, ResponseType.ERROR_OCCURRED, event.error) );
+		}// end deleteFaultHandler function
+		
+		/*
 		private function loadMeetingRelations(meeting:Meeting):void{
 			meeting.attendees =		 	new ArrayCollection();
 			meeting.attendees.source = 	attendeeService.getAttendees(meeting.id);
@@ -166,6 +225,7 @@ package com.ortusSolutions.userGroupManager.model.services{
 			meeting.raffles = 			new ArrayCollection();
 			meeting.raffles.source = 	raffleService.getRafflesByMeeting(meeting.id);
 		}// end loadMeetingRelations function
+		*/
 		
 	}// end MeetingService class
 	

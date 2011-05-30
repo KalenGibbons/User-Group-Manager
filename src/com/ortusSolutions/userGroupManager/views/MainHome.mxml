@@ -35,8 +35,9 @@
 			
 			protected function addedToStageHandler():void{
 				this.dispatchEvent( new Event("configureView", true) );
+				// TODO : update or remove the following code and related metadata
 				// preloaded all the locally stored data - the controller will only preload the data once
-				this.dispatchEvent( new ModelEvent(ModelEvent.PRELOAD_ALL) );
+				//this.dispatchEvent( new ModelEvent(ModelEvent.PRELOAD_ALL) );
 			}// end addedToStageHandler function
 			
 			private function quickRaffle():void{

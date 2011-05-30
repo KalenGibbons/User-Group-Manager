@@ -6,9 +6,17 @@
 	
 	<fx:Style source="com/ortusSolutions/userGroupManager/styles/MainStyles.css" />
 	
+	<fx:Metadata>
+		[Event(name="configureView", type="flash.events.Event")]
+		[Event(name="startSyncSession", type="com.ortusSolutions.userGroupManager.events.DataSyncEvent")]
+		[Event(name="fetchData", type="com.ortusSolutions.userGroupManager.events.DataSyncEvent")]
+		[ManagedEvents("startSyncSession,fetchData")]
+	</fx:Metadata>
+	
 	<fx:Script>
 		<![CDATA[
 			import com.ortusSolutions.userGroupManager.config.CoreConfig;
+			import com.ortusSolutions.userGroupManager.events.DataSyncEvent;
 			import com.ortusSolutions.userGroupManager.events.NotificationEvent;
 			import com.ortusSolutions.userGroupManager.views.Notification;
 			
@@ -42,6 +50,16 @@
 					PopUpManager.centerPopUp(notificationPopup);
 				}
 			}// end notificationHandler function
+			
+			[Init]
+			public function injectionHandler():void{
+				// TODO: figure out if this is the best place/time for this
+				// once everything is configured setup the session for data syncronization
+				// TODO : we shouldn't fire these one right after the other
+				this.dispatchEvent( new DataSyncEvent(DataSyncEvent.START_SESSION) );
+				//this.dispatchEvent( new DataSyncEvent(DataSyncEvent.FETCH_DATA) );
+			}// end injectionHandler function
+			
 		]]>
 	</fx:Script>
 	

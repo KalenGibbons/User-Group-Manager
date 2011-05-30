@@ -8,27 +8,29 @@ package com.ortusSolutions.userGroupManager.model{
 	[Bindable]
 	[RemoteClass(alias="model.beans.Meeting")]
 	[Entity]
+	[Table(name="meetings")]
 	public class Meeting extends BaseVO{
 		
 		// database fields
 		[Id]
+		[GeneratedValue(strategy="INCREMENT")]
 		public var id:int;
 		public var topic:String;
 		public var date:Date;
 		
-		[ManyToMany(targetEntity="Person")]
+		[ManyToMany(targetEntity="com.ortusSolutions.userGroupManager.model.Person")]
 		[JoinTable(name="meetingPresenters")]
 		[JoinColumn(name="meeting",referencedColumnName="id")]
 		[InverseJoinColumn(name="presenter",referencedColumnName="id")]
 		public var presenters:ArrayCollection;
 		
-		[ManyToMany(targetEntity="Person")]
+		[ManyToMany(targetEntity="com.ortusSolutions.userGroupManager.model.Person")]
 		[JoinTable(name="meetingAttendees")]
 		[JoinColumn(name="meeting",referencedColumnName="id")]
 		[InverseJoinColumn(name="attendee",referencedColumnName="id")]
 		public var attendees:ArrayCollection;
 		
-		[OneToMany(targetEntity="Raffle", mappedBy="raffle")]
+		[OneToMany(targetEntity="com.ortusSolutions.userGroupManager.model.Raffle", mappedBy="raffle")]
 		public var raffles:ArrayCollection;
 		
 		// custom properties
@@ -41,6 +43,7 @@ package com.ortusSolutions.userGroupManager.model{
 			dateFormatter.formatString = Settings.DATE_FORMAT_LONG;
 		}// end constructor
 		
+		[Transient]
 		public function get formattedDate():String{
 			return dateFormatter.format(this.date);
 		}// end formattedDate getter

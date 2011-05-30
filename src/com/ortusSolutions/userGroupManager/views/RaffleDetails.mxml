@@ -42,9 +42,12 @@
 			
 			[Init]
 			public function injectionHandler():void{
+				// TODO : we should just be able to pull the meeting from the raffle
+				/*
 				if(raffle != null){
 					this.meeting = raffleService.getRaffleMeeting(raffle);
 				}
+				*/
 			}// end injectionHandler function
 			
 			[MessageHandler (selector="deleteRaffle")]

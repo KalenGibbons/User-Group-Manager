@@ -3,8 +3,6 @@ package com.ortusSolutions.userGroupManager.model.services{
 	import com.ortusSolutions.userGroupManager.model.Attendee;
 	import com.ortusSolutions.userGroupManager.model.dataAccess.AttendeeDAO;
 	
-	import flash.data.SQLConnection;
-	
 	public class AttendeeService{
 		
 		[Inject]
